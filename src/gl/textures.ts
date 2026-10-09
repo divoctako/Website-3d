@@ -228,7 +228,7 @@ export function statCard({ value, unit, label, width = 420, height = 300, tone =
 }
 
 /** Photo card with a paper frame and a caption underneath. */
-export function photoCard(img: HTMLImageElement, caption: string, width = 520, imageAspect = 0.72, focusY = 0.5) {
+export function photoCard(img: HTMLImageElement | HTMLCanvasElement, caption: string, width = 520, imageAspect = 0.72, focusY = 0.5) {
   const pad = 18;
   const imgH = Math.round((width - pad * 2) * imageAspect);
   const height = imgH + pad * 2 + 92;

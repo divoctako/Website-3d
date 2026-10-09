@@ -18,6 +18,7 @@
     />
   </head>
   <body>
+    <canvas class="fx-canvas" data-fx-canvas aria-hidden="true"></canvas>
     <header class="nav" data-nav>
       <a class="nav__logo" href="#top" aria-label="BYD SEALION 7">BYD <span>SEALION 7</span></a>
       <nav class="nav__links" aria-label="Sections">
@@ -55,10 +56,13 @@
         </div>
       </section>
 
-      <section class="section" id="performance">
+      <section class="section fx-section perf" id="performance">
         <div class="container">
           <p class="eyebrow">01 · Performance</p>
           <h2 class="title">Performance<br />in Motion</h2>
+        </div>
+        <div class="perf__stage" data-fx="performance" aria-hidden="true"></div>
+        <div class="container">
           <p class="lead">พลิกนิยามการขับเคลื่อนยุคใหม่</p>
           <p class="body">
             BYD SEALION 7 รถ SUV เพื่อไลฟ์สไตล์ของคนสมาร์ท โดยนักออกแบบระดับโลก Wolfgang Egger
@@ -81,21 +85,26 @@
         </div>
       </section>
 
-      <section class="section section--alt" id="exterior">
-        <div class="container">
-          <p class="eyebrow">02 · Exterior</p>
-          <h2 class="title">Exterior</h2>
-          <ul class="features">
+      <section class="fx-section ext" id="exterior">
+        <div class="ext__pin" data-ext-pin>
+          <div class="ext__stage" data-fx="exterior">
+            <div class="container ext__copy">
+              <p class="eyebrow">02 · Exterior</p>
+              <h2 class="title">Exterior</h2>
+              <ul class="features ext__list">
             <li>โฉบเฉี่ยวทุกมุมมอง กับการออกแบบภายใต้แนวคิด <b>Ocean-X Face</b> โดยตัว “X” ที่ทำให้หน้ารถโดดเด่น</li>
             <li>สปอร์ตอีกขั้น กับไฟหน้าแบบ <b>Double-U Floating</b></li>
             <li>ไฟท้ายแนวยาว รับเข้ากับดีไซน์รูปทรงหยดน้ำ</li>
             <li>ล้ออัลลอยใหญ่ <b>20 นิ้ว</b> พร้อมคาลิปเปอร์เบรกสีแดง 4 ล้อ</li>
             <li>ประตูท้ายไฟฟ้าแบบ<b>แฮนด์ฟรี</b></li>
-          </ul>
+              </ul>
+            </div>
+            <div class="ext__hotspots" data-ext-hotspots></div>
+          </div>
         </div>
       </section>
 
-      <section class="section" id="interior">
+      <section class="section fx-section int" id="interior">
         <div class="container">
           <p class="eyebrow">03 · Interior</p>
           <h2 class="title">Design<br />in Motion</h2>
@@ -104,6 +113,18 @@
             พบกับภายในห้องโดยสาร BYD SEALION 7 ที่ออกแบบภายใต้แนวคิด Floating Design
             เชื่อมต่อความสะดวกสบายและเทคโนโลยีขั้นสุดได้อย่างลงตัว
           </p>
+        </div>
+        <div class="int__pin" data-int-pin>
+          <div class="int__stage" data-fx="interior">
+            <div class="int__mood">
+              <button class="int__beat" type="button" data-int-beat aria-pressed="false">
+                <span aria-hidden="true">▶</span> ลองฟังจังหวะ
+              </button>
+              <p class="int__shade">Mood light 128 เฉดสี · <span data-int-shade>1 / 128</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="container">
           <ul class="features">
             <li><b>Head-Up Display</b> ครบทุกข้อมูลการขับขี่โดยไม่ต้องละสายตา</li>
             <li>หน้าจอมัลติมีเดียขนาด <b>15.6 นิ้ว</b></li>

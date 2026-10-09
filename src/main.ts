@@ -7,6 +7,7 @@ import Lenis from 'lenis';
 import { Book, STEPS } from './gl/book/Book';
 import { IMAGE_SOURCES, type Images } from './gl/book/spreads';
 import { loadImage, setPageResolution } from './gl/textures';
+import { startFx } from './ui/fx';
 import { renderSections } from './ui/sections';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -196,7 +197,11 @@ async function boot() {
   loader.classList.add('is-done');
 }
 
-boot().catch((err) => {
-  console.error(err);
-  loader.querySelector('span')!.textContent = 'ไม่สามารถโหลดหนังสือได้';
-});
+boot()
+  .catch((err) => {
+    console.error(err);
+    loader.querySelector('span')!.textContent = 'ไม่สามารถโหลดหนังสือได้';
+  })
+  // section scenes load after the book, so they don't hold up the first screen
+  .then(() => startFx(lenis, reducedMotion))
+  .catch((err) => console.error(err));

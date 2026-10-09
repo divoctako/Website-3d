@@ -1,7 +1,7 @@
 # งานที่เหลือ (handoff)
 
 สถานะ ณ commit `314eb87` บน branch `claude/sealion7-spec` (เป็น default branch ของ repo ด้วย)
-- เสร็จแล้ว: M0 setup, M1 prototype หนังสือ, M2 หนังสือครบ 6 spread + tabs + section เนื้อหาแบบ HTML
+- เสร็จแล้ว: M0 setup, M1 prototype หนังสือ, M2 หนังสือครบ 6 spread + tabs + section เนื้อหาแบบ HTML, M3 ฉาก 3D ของ Performance / Exterior / Interior
 - เว็บจริง: https://divoctako.github.io/Website-3d/ ทุกครั้งที่ push ขึ้น `claude/sealion7-spec` workflow `.github/workflows/pages.yml` จะ build แล้ว deploy ขึ้น `gh-pages` ให้เอง
 - Spec เต็มอยู่ที่ [`SPEC.md`](SPEC.md) (§4 = เนื้อหาและ 3D ของแต่ละ section, §9 = milestones, §10 = คำถามค้าง)
 
@@ -32,16 +32,22 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
 | `src/gl/textures.ts` | helper วาด canvas (paper, statCard, photoCard, tag, paperCutout, wrap ภาษาไทย) |
 | `src/ui/sections.ts` | เติมตาราง spec / ADAS / สี ใน section HTML จาก `brochure.ts` |
 | `src/main.ts` | Lenis + ScrollTrigger, snap, tabs, คลิก pop-up, ปรับ DPR อัตโนมัติ |
+| `src/gl/fx/FxStage.ts` | canvas three.js ตัวที่สอง (fixed หลังเนื้อหา) วาดแต่ละฉากเฉพาะในกรอบ `[data-fx]` ที่อยู่ในจอ (scissor) |
+| `src/gl/fx/PerformanceScene.ts` · `ExteriorScene.ts` · `InteriorScene.ts` | ฉาก 3D ของแต่ละ section |
+| `src/ui/fx.ts` | โหลดรูป, ผูก scroll กับฉาก, count-up, hotspot, ปุ่มจังหวะ (`window.__fx` ใช้ debug ในโหมด dev) |
 | `scripts/extract-pdf-assets.sh` | ดึงรูปจาก `source/BYD_SEALION_7.pdf` → `public/assets/*.webp` |
 
-## M3 — 3D effect ของ section Performance, Exterior, Interior
+## M3 — 3D effect ของ section Performance, Exterior, Interior ✅
 
-ตอนนี้ทั้ง 3 section เป็น HTML ธรรมดา (ใน `index.html`) ให้ทำตาม SPEC §4 [1]–[3]
-- [ ] สร้าง canvas three.js ตัวที่สองแบบ `position: fixed` อยู่หลังเนื้อหา section (แยกจาก canvas หนังสือ) และ render เฉพาะตอน section อยู่ในจอ
-- [ ] **Performance:** รถด้านข้าง (`car-side.webp`) วิ่งเข้าจากขวาแบบ parallax 3 ชั้น (หมอกฟ้า / รถ / `speed-lines.webp`) และตัวเลขใน `.stats` count-up ตอนเข้าจอ
-- [ ] **Exterior:** pin section แล้ว scroll หมุนมุมมองหน้า → ข้าง → หลัง (crossfade + หมุนระนาบ ±25°), hotspot 5 จุดคู่กับรายการใน `.features`, ใช้รูป `detail-*.webp` เป็นการ์ด
-- [ ] **Interior:** `interior-wide.webp` บนพื้นผิวโค้ง แล้ว scroll pan, แถบไฟ 128 เฉดสีไล่ตาม scroll, การ์ด `interior-*.webp` ลอยแบบ masonry
-- [ ] ระวัง: รูปไดคัทจาก PDF ความละเอียดต่ำ (`car-side` ~900px, `car-front` ~530px) อย่าขยายเต็มจอ
+- [x] canvas three.js ตัวที่สอง `position: fixed` หลังเนื้อหา (`.fx-canvas`) section ที่มีฉากใช้พื้นหลังโปร่ง (`.fx-section`) และ render เฉพาะตอนกรอบของฉากอยู่ในจอ
+- [x] **Performance:** รถ `car-side` วิ่งเข้าจากขวาไปหยุดกลางจอ parallax 3 ชั้น (`bg-sky-mist` / แถบ `speed-lines` / รถ) ล้อเป็น sprite แยกหมุนด้วย shader ตามระยะที่รถเคลื่อน ตัวเลขใน `.stats` count-up และลอยขึ้นจากแกน z ตอนเข้าจอ
+- [x] **Exterior:** pin 520vh แล้ว scroll ไล่ 5 จุด มุมมองหน้า → ข้าง → หันท้าย (crossfade + หมุน ±25°) hotspot 5 จุด (ปุ่ม HTML ที่ project ตำแหน่งจาก 3D คลิกแล้วเลื่อนไปจุดนั้น) การ์ด detail พับขึ้นแบบ pop-up บนมือถือแสดงเฉพาะข้อที่ active
+- [x] **Interior:** pin 340vh `interior-wide` บน cylinder segment (กล้องอยู่ข้างใน) scroll pan ซ้าย → ขวา แถบไฟไล่ 128 เฉดตาม scroll ปุ่ม "ลองฟังจังหวะ" pulse แบบ procedural (ไม่มีเสียง) ครึ่งหลังการ์ด 7 ใบลอยขึ้นแบบ masonry ความลึกต่างกัน
+- ยังไม่ได้ทำ / ข้อจำกัด:
+  - PDF **ไม่มีรูปไดคัทด้านหลัง** มุม "หลัง" ของ Exterior จึงใช้รูปด้านข้างหมุนให้ท้ายรถหันเข้าหากล้อง และ section Contact (M4) ก็ต้องใช้รูปนี้ ควรขอเพิ่มตาม §10 ข้อ 1
+  - เส้นแสงวาดตัว "X" ที่หน้ารถ (SVG stroke) ตาม SPEC §4 [2] ยังไม่ได้ทำ
+  - ตรวจแล้วบน Chromium ที่ 1280×720 และ 375×812 ยังไม่ได้ลองบนเครื่องจริง
+  - `prefers-reduced-motion` ตอนนี้แค่ตัด damping/count-up/การลอย ยังคง pin อยู่ (ทำต่อใน M5)
 
 ## M4 — ADAS, Specs, Colors, Contact
 
