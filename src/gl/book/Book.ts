@@ -3,9 +3,10 @@ import { Leaf } from './Leaf';
 import type { PopUpPiece } from './PopUpPiece';
 import { buildPageArt, type Images } from './spreads';
 
-/** Scroll steps: 0 closed · 1 spread 1 · 2 spread 2 · 3 dive into the page. */
-export const STEPS = 3;
-const TURNING_LEAVES = 2;
+/** Spreads in the book: performance, exterior, interior, ADAS, specs, colours. */
+export const SPREADS = 6;
+/** Scroll steps: 0 closed · 1…SPREADS one per spread · last: dive into the page. */
+export const STEPS = SPREADS + 1;
 
 const smooth = (a: number, b: number, x: number) => {
   const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1);
@@ -108,7 +109,7 @@ export class Book {
     const angles: number[] = [];
     for (let i = 0; i < this.leaves.length; i++) {
       // pop-ups fold away first, then the leaf turns
-      const turning = i < TURNING_LEAVES ? easeInOut(THREE.MathUtils.clamp((p - i - 0.14) / 0.74, 0, 1)) : 0;
+      const turning = i < this.leaves.length - 1 ? easeInOut(THREE.MathUtils.clamp((p - i - 0.14) / 0.74, 0, 1)) : 0;
       angles.push(turning * Math.PI);
     }
 

@@ -43,13 +43,22 @@ export function toTexture(canvas: HTMLCanvasElement, renderer: THREE.WebGLRender
   return tex;
 }
 
+/**
+ * Page canvases are painted in 1024 px-per-unit layout coordinates and
+ * stored at this fraction of that size (lowered on phones to save memory).
+ */
+let pageResolution = 1;
+export function setPageResolution(r: number) {
+  pageResolution = r;
+}
+
 /** Off-white paper with faint grain and a soft shade along the spine. */
 export function paper(w: number, h: number, spine: 'left' | 'right' | 'none' = 'none') {
-  const { canvas, ctx } = makeCanvas(w, h);
+  const { canvas, ctx } = makeCanvas(w * pageResolution, h * pageResolution);
   ctx.fillStyle = COLORS.paper;
-  ctx.fillRect(0, 0, w, h);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const grain = ctx.getImageData(0, 0, w, h);
+  const grain = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const d = grain.data;
   for (let i = 0; i < d.length; i += 4) {
     const n = (Math.random() - 0.5) * 6;
@@ -58,6 +67,7 @@ export function paper(w: number, h: number, spine: 'left' | 'right' | 'none' = '
     d[i + 2] += n;
   }
   ctx.putImageData(grain, 0, 0);
+  ctx.scale(pageResolution, pageResolution);
 
   if (spine !== 'none') {
     const x0 = spine === 'left' ? 0 : w;
@@ -153,7 +163,7 @@ export function spaced(ctx: CanvasRenderingContext2D, text: string, x: number, y
  * Turns an alpha cut-out into a paper cut-out: the subject gets a white border,
  * like it was cut from a printed sheet with scissors.
  */
-export function paperCutout(img: HTMLImageElement, border = 10, maxWidth = 1400) {
+export function paperCutout(img: HTMLImageElement | HTMLCanvasElement, border = 10, maxWidth = 1400) {
   const scale = Math.min(1, maxWidth / img.width);
   const iw = Math.round(img.width * scale);
   const ih = Math.round(img.height * scale);
@@ -261,7 +271,11 @@ export function backdropCard(img: HTMLImageElement, width: number, height: numbe
 export function tag(text: string, sub?: string) {
   const { ctx: m } = makeCanvas(10, 10);
   m.font = `400 34px ${FONT_DISPLAY}`;
-  const w = Math.max(m.measureText(text).width + 80, 300);
+  let w = Math.max(m.measureText(text).width + 80, 300);
+  if (sub) {
+    m.font = `500 26px ${FONT_BODY}`;
+    w = Math.max(w, m.measureText(sub).width + 80);
+  }
   const h = sub ? 150 : 96;
   const { canvas, ctx } = makeCanvas(w, h);
   roundRect(ctx, 2, 2, w - 4, h - 4, 20);

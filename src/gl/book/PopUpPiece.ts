@@ -9,6 +9,8 @@ export interface PopUpOptions {
   delay?: number;
   /** Lean back when fully raised, in radians. */
   lean?: number;
+  /** Turn around the page normal, in radians (fans pieces out). */
+  yaw?: number;
   /** Section id to jump to when clicked. */
   section?: string;
 }
@@ -58,9 +60,12 @@ export class PopUpPiece {
     this.section = opts.section;
     this.mesh.userData.piece = this;
 
+    const turn = new THREE.Group();
+    turn.rotation.y = opts.yaw ?? 0;
     this.hinge.position.y = LIFT;
     this.hinge.add(this.mesh);
-    this.root.add(this.hinge);
+    turn.add(this.hinge);
+    this.root.add(turn);
   }
 
   /** `rise` is how open the spread is, 0 (flat) → 1 (fully standing). */

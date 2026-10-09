@@ -6,9 +6,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { Book, STEPS } from './gl/book/Book';
 import { IMAGE_SOURCES, type Images } from './gl/book/spreads';
-import { loadImage } from './gl/textures';
+import { loadImage, setPageResolution } from './gl/textures';
+import { renderSections } from './ui/sections';
 
 gsap.registerPlugin(ScrollTrigger);
+renderSections();
 
 const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -22,6 +24,10 @@ const hint = $<HTMLElement>('[data-hint]');
 const nav = $<HTMLElement>('[data-nav]');
 const navProgress = $<HTMLElement>('[data-progress]');
 const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-step]'));
+const tabList = $<HTMLElement>('.book__tabs');
+
+// one viewport of scroll per step, plus the viewport the stage itself fills
+bookEl.style.height = `${(STEPS + 1) * 100}vh`;
 
 /* ---------------------------------------------------------- smooth scroll */
 
@@ -93,6 +99,9 @@ async function boot() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
 
+  // 14 page textures: keep them lighter on phones
+  const small = Math.min(window.screen.width, window.screen.height) < 768;
+  setPageResolution(small ? 0.7 : 1);
   const book = new Book(images, renderer);
   if (import.meta.env.DEV) Object.assign(window, { __book: book, __THREE: THREE });
 
@@ -149,6 +158,7 @@ async function boot() {
   new IntersectionObserver(([entry]) => (visible = entry.isIntersecting)).observe(bookEl);
 
   // drop resolution if frames are slow for a while
+  let activeTab = -1;
   let slowFor = 0;
   let last = performance.now();
   gsap.ticker.add(() => {
@@ -165,7 +175,15 @@ async function boot() {
     fade.style.opacity = String(book.diveAmount);
     hint.style.opacity = current < 0.15 ? '1' : '0';
     const active = Math.min(Math.round(current), STEPS - 1);
-    tabs.forEach((b, i) => b.classList.toggle('is-active', i === active));
+    if (active !== activeTab) {
+      activeTab = active;
+      tabs.forEach((b, i) => b.classList.toggle('is-active', i === active));
+      // keep the active tab in view when the tab row scrolls (phones)
+      const tab = tabs[active];
+      if (tab && tabList.scrollWidth > tabList.clientWidth) {
+        tabList.scrollTo({ left: tab.parentElement!.offsetLeft - (tabList.clientWidth - tab.offsetWidth) / 2, behavior: 'smooth' });
+      }
+    }
 
     slowFor = dt > 1 / 45 ? slowFor + dt : 0;
     if (slowFor > 2 && dpr > 1) {

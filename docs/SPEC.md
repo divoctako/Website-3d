@@ -140,7 +140,7 @@
 | FCW | Front Collision Warning | ระบบช่วยเตือนการชนด้านหน้า |
 | RCW | Rear Collision Warning | ระบบช่วยเตือนการชนด้านหลัง |
 | BSD | Blind Spot Detection | ระบบช่วยเตือนจุดอับสายตา |
-| DOW | Door Open Warning | ระบบช่วยเตือนวัตถุเคลื่อนผ่านขณะเปิดประตู |
+| DOW | — | ระบบช่วยเตือนวัตถุเคลื่อนผ่านขณะเปิดประตู |
 | LDA | Lane Departure Assist | ระบบช่วยรักษารถให้อยู่ในช่องทางเดินรถ |
 | FCTA & FCTB | — | ระบบช่วยเตือนและช่วยเบรก เมื่อมีรถเคลื่อนผ่านในจุดอับสายตาด้านหน้า |
 | RCTA & RCTB | — | ระบบช่วยเตือนและช่วยเบรก เมื่อมีรถผ่านจุดอับสายตาขณะถอยหลัง |
@@ -397,7 +397,7 @@ interface SpecGroup { id: string; title: string; rows: SpecRow[]; }
 |---|---|---|
 | M0 ✅ | Setup Vite + three.js + GSAP/Lenis, asset extraction script, content data | repo รันได้, assets พร้อม |
 | M1 ✅ | **Pop-up book prototype**: ปก + 2 spreads, page curl, hinge pop-up, scroll/snap | ใช้ตัดสินใจเรื่อง feel ก่อนทำต่อ |
-| M2 | Book ครบ 6 spreads + tabs + transition เข้า section | Hero เสร็จ |
+| M2 ✅ | Book ครบ 6 spreads + tabs + transition เข้า section | Hero เสร็จ |
 | M3 | Section 1–3 (Performance, Exterior, Interior) | |
 | M4 | Section 4–7 (ADAS scene, Specs table, Colors, Contact) | |
 | M5 | Mobile, reduced-motion, no-WebGL fallback, performance tuning | |

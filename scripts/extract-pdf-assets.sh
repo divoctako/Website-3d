@@ -53,5 +53,13 @@ opaque interior-blue   i-003-056.jpg
 opaque interior-dms    i-003-057.jpg
 opaque interior-hud    i-003-058.jpg
 
+# Page 4 — exterior colours (RGB + mask pairs; only ~240 px wide in the brochure)
+cutout car-color-horizon-white i-004-072.jpg i-004-073.jpg
+cutout car-color-space-grey    i-004-074.jpg i-004-075.jpg
+cutout car-color-quantum-black i-004-076.jpg i-004-077.jpg
+cutout car-color-pulse-purple  i-004-078.jpg i-004-079.jpg
+cutout car-color-solar-red     i-004-080.jpg i-004-081.jpg
+cutout car-color-shark-grey    i-004-082.jpg i-004-083.jpg
+
 echo "Assets written to $OUT"
 ls -la "$OUT"
