@@ -332,19 +332,19 @@ Preloader: ตัว wordmark "BYD SEALION 7" ที่ stroke วาดตา�
 | ชื่อไฟล์ใน project | ที่มา (page-index) | ขนาดต้นฉบับ | ใช้ที่ |
 |---|---|---|---|
 | `hero.webp` | p1 `i-001-000` | 3452×2212 | ปกหนังสือ, OG image |
-| `bg-sky-mist.webp` | p1 `i-001-002` | 2440×3264 | พื้นหลังหมอกฟ้า |
-| `car-side.webp` (RGBA) | p2 `i-002-019` + mask `020` | 2283×1237 | Performance, Exterior |
-| `car-front.webp` (RGBA) | p2 `i-002-021` + mask `022` | 1637×2190 | Exterior, spread 2 |
-| `tailgate.webp` | p2 `i-002-026` (+mask `027`) | 1448×785 | Exterior #5 |
-| `speed-lines.webp` | p3 `i-003-043` | 1376×1841 | Performance parallax |
+| `bg-sky-mist.webp` | p2 `i-002-019` | 2283×1237 | พื้นหลังหมอกฟ้า |
+| `bg-swirl.webp` | p2 `i-002-023` | 2532×1899 | backdrop spread Exterior |
+| `car-side.webp` (RGBA) | p2 `i-002-024` + mask `025` | รถ ~900×320 หลัง crop ⚠ | Performance |
+| `car-front.webp` (RGBA) | p2 `i-002-026` + mask `027` | รถ ~530×430 หลัง crop ⚠ | Exterior |
+| `detail-headlight / taillight / wheel / tailgate.webp` | p2 `i-002-028…031` | 236–482 px | การ์ด detail Exterior |
+| `speed-lines.webp` | p3 `i-003-043` | 1376×1841 | Performance backdrop |
 | `adas-road.webp` | p3 `i-003-048` | 1242×468 | ADAS reference / fallback |
-| `interior-wide.webp` | p3 (ภาพใหญ่หน้า 3) | ตรวจสอบตอน extract | Interior |
-| `interior-*.webp` | p3 `i-003-050/051/054/058` ฯลฯ | 400–1300 px | Interior detail cards |
-| `car-color-{6 สี}.webp` (RGBA) | p4 `i-004-072…083` (คู่ RGB+mask) | **~474×258** ⚠ | Colors, spread 6 |
-| `ortho-front/side/rear.webp` | p4 `i-004-084…089` | 354–825 px | Specs blueprint |
-| `swirl.webp` | p2 (ภาพ swirl ม่วง) | — | Decorative |
+| `interior-dash / wide.webp` | p3 `i-003-050/051` | 1095–1306 px | Interior |
+| `interior-shifter / audio / cabin / roof / blue / dms / hud.webp` | p3 `i-003-052…058` | 288–852 px | Interior detail cards |
+| `car-color-{6 สี}.webp` (RGBA) | p4 `i-004-072…083` (คู่ RGB+mask) | **~474×258** ⚠ | Colors (ยังไม่ได้ทำ) |
+| `ortho-front/side/rear.webp` | p4 `i-004-084…089` | 354–825 px | Specs blueprint (ยังไม่ได้ทำ) |
 
-> ⚠ **ภาพรถ 6 สีใน PDF มีความละเอียดต่ำ (~474px)** พอใช้กับ pop-up ขนาดเล็กในหนังสือ แต่ไม่พอสำหรับ section Colors แบบเต็มจอ (ดู §10)
+> ⚠ **ภาพรถไดคัทใน PDF ความละเอียดต่ำ** (ด้านข้าง ~900px, ด้านหน้า ~530px, 6 สี ~474px) ใช้ใน pop-up ได้ แต่ถ้าขยายเต็มจอ (Exterior ตอน dive, Colors) จะเริ่มแตก ควรขอไฟล์ต้นฉบับ (ดู §10)
 
 ### 7.3 Content data
 ข้อความและตาราง spec ทั้งหมดอยู่ใน `src/content/*.ts` (ไม่ hard-code ใน component) ตัวอย่าง schema:
@@ -395,8 +395,8 @@ interface SpecGroup { id: string; title: string; rows: SpecRow[]; }
 
 | # | งาน | ผลลัพธ์ |
 |---|---|---|
-| M0 | Setup Vite + three.js + GSAP/Lenis, asset extraction script, content data | repo รันได้, assets พร้อม |
-| M1 | **Pop-up book prototype**: ปก + 2 spreads, page curl, hinge pop-up, scroll/snap | ใช้ตัดสินใจเรื่อง feel ก่อนทำต่อ |
+| M0 ✅ | Setup Vite + three.js + GSAP/Lenis, asset extraction script, content data | repo รันได้, assets พร้อม |
+| M1 ✅ | **Pop-up book prototype**: ปก + 2 spreads, page curl, hinge pop-up, scroll/snap | ใช้ตัดสินใจเรื่อง feel ก่อนทำต่อ |
 | M2 | Book ครบ 6 spreads + tabs + transition เข้า section | Hero เสร็จ |
 | M3 | Section 1–3 (Performance, Exterior, Interior) | |
 | M4 | Section 4–7 (ADAS scene, Specs table, Colors, Contact) | |

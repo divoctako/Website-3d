@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BYD SEALION 7 — Life in Motion</title>
+    <meta
+      name="description"
+      content="BYD SEALION 7 รถ SUV ไฟฟ้า วิ่งไกลสูงสุด 600 กม. (NEDC) กำลัง 390 kW อัตราเร่ง 0–100 km/h 4.5 วินาที"
+    />
+    <meta property="og:title" content="BYD SEALION 7 — Life in Motion" />
+    <meta property="og:image" content="./assets/hero.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Michroma&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="nav" data-nav>
+      <a class="nav__logo" href="#top" aria-label="BYD SEALION 7">BYD <span>SEALION 7</span></a>
+      <nav class="nav__links" aria-label="Sections">
+        <a href="#performance">Performance</a>
+        <a href="#exterior">Exterior</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav__progress" data-progress></div>
+    </header>
+
+    <main id="top">
+      <!-- Pop-up book hero: the section is tall, the stage inside it is sticky -->
+      <section class="book" id="book" aria-label="BYD SEALION 7 pop-up book">
+        <div class="book__stage">
+          <canvas class="book__canvas" data-book-canvas aria-hidden="true"></canvas>
+
+          <ol class="book__tabs" aria-label="สารบัญ">
+            <li><button type="button" data-step="0"><span>00</span> ปก</button></li>
+            <li><button type="button" data-step="1"><span>01</span> Performance</button></li>
+            <li><button type="button" data-step="2"><span>02</span> Exterior</button></li>
+          </ol>
+
+          <p class="book__hint" data-hint>Scroll เพื่อเปิดหนังสือ</p>
+          <button class="book__skip" type="button" data-skip>ข้ามหนังสือ ↓</button>
+          <div class="book__fade" data-fade></div>
+          <div class="book__loader" data-loader><span>BYD SEALION 7</span></div>
+        </div>
+      </section>
+
+      <section class="section" id="performance">
+        <div class="container">
+          <p class="eyebrow">01 · Performance</p>
+          <h2 class="title">Performance<br />in Motion</h2>
+          <p class="lead">พลิกนิยามการขับเคลื่อนยุคใหม่</p>
+          <p class="body">
+            BYD SEALION 7 รถ SUV เพื่อไลฟ์สไตล์ของคนสมาร์ท โดยนักออกแบบระดับโลก Wolfgang Egger
+            ที่ได้แรงบันดาลใจจากความงามของท้องทะเล สู่เส้นสายที่โฉบเฉี่ยวรอบคัน
+            พร้อมสมรรถนะที่ชาญฉลาด ตอบทุกความต้องการของชีวิตยุคใหม่
+          </p>
+          <dl class="stats">
+            <div><dt>Driven Range (NEDC)</dt><dd>600<small>km</small></dd></div>
+            <div><dt>Maximum Power</dt><dd>390<small>kW</small></dd></div>
+            <div><dt>Maximum Torque</dt><dd>690<small>N·m</small></dd></div>
+            <div><dt>Battery Capacity</dt><dd>91.3<small>kWh</small></dd></div>
+            <div><dt>Acceleration 0–100 km/h</dt><dd>4.5<small>sec</small></dd></div>
+            <div><dt>DC Charging Port CCS2</dt><dd>230<small>kW</small></dd></div>
+          </dl>
+          <p class="note">
+            ตัวเลขของรุ่น AWD Ultimate · ระยะทางวิ่งด้วยไฟฟ้าสูงสุดอาจปรับเปลี่ยนได้ตามปัจจัยต่าง ๆ เช่น
+            พฤติกรรมการขับขี่ของแต่ละบุคคล น้ำหนักบรรทุก สภาพการจราจร และอื่น ๆ
+            ระยะทางที่ระบุไว้เป็นเพียงตัวเลขประมาณการณ์สำหรับอ้างอิงเท่านั้น
+          </p>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="exterior">
+        <div class="container">
+          <p class="eyebrow">02 · Exterior</p>
+          <h2 class="title">Exterior</h2>
+          <ul class="features">
+            <li>โฉบเฉี่ยวทุกมุมมอง กับการออกแบบภายใต้แนวคิด <b>Ocean-X Face</b> โดยตัว “X” ที่ทำให้หน้ารถโดดเด่น</li>
+            <li>สปอร์ตอีกขั้น กับไฟหน้าแบบ <b>Double-U Floating</b></li>
+            <li>ไฟท้ายแนวยาว รับเข้ากับดีไซน์รูปทรงหยดน้ำ</li>
+            <li>ล้ออัลลอยใหญ่ <b>20 นิ้ว</b> พร้อมคาลิปเปอร์เบรกสีแดง 4 ล้อ</li>
+            <li>ประตูท้ายไฟฟ้าแบบ<b>แฮนด์ฟรี</b></li>
+          </ul>
+          <p class="note">3D scroll scene ของ section นี้อยู่ใน milestone M3</p>
+        </div>
+      </section>
+
+      <footer class="section footer" id="contact">
+        <div class="container">
+          <p class="eyebrow">Contact</p>
+          <h2 class="title">Life in Motion</h2>
+          <address>
+            <strong>REVER AUTOMOTIVE CO., LTD. (HEAD OFFICE)</strong><br />
+            865 Siam at Siam Hotel Bldg. 9th Fl., Rama 1 Road, Wangmai, Pathumwan, Bangkok 10330<br />
+            โทร <a href="tel:027668880">02 766 8880</a> · อีเมล
+            <a href="mailto:contact@reverautomotive.com">contact@reverautomotive.com</a>
+          </address>
+          <p class="note">
+            สีที่แสดงเป็นเพียงแนวทางเท่านั้นและอาจแตกต่างจากสีจริง · ระบบช่วยขับขี่ไม่สามารถทดแทนความรับผิดชอบของผู้ขับขี่ต่อยานพาหนะได้ ·
+            BYD ขอสงวนสิทธิ์ในการเปลี่ยนแปลงข้อมูลคุณสมบัติของรถยนต์และอุปกรณ์มาตรฐานจากรายละเอียดในเอกสารนี้
+          </p>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
