@@ -1,10 +1,13 @@
 import gsap from 'gsap';
 import type Lenis from 'lenis';
+import { ADAS_SYSTEMS } from '../content/brochure';
+import { AdasScene, ADAS_COUNT } from '../gl/fx/AdasScene';
 import { ExteriorScene, EXTERIOR_FEATURES } from '../gl/fx/ExteriorScene';
 import { FxStage } from '../gl/fx/FxStage';
 import { InteriorScene, SHADES } from '../gl/fx/InteriorScene';
 import { PerformanceScene } from '../gl/fx/PerformanceScene';
 import { loadImage } from '../gl/textures';
+import { pinProgress, scrollToPin } from './pin';
 
 const FX_IMAGES = {
   carSide: 'assets/car-side.webp',
@@ -23,23 +26,13 @@ const FX_IMAGES = {
   interiorAudio: 'assets/interior-audio.webp',
   interiorRoof: 'assets/interior-roof.webp',
   interiorBlue: 'assets/interior-blue.webp',
+  carRear34: 'assets/car-rear-34-top.webp',
+  leadCar: 'assets/lead-car-rear.webp',
 } as const;
 
 type FxImages = Record<keyof typeof FX_IMAGES, HTMLImageElement>;
 
 const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
-
-/** Progress 0…1 through a pinned wrapper (its sticky child fills the viewport). */
-function pinProgress(pin: HTMLElement) {
-  const r = pin.getBoundingClientRect();
-  const span = r.height - window.innerHeight;
-  return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
-}
-
-function scrollToPin(lenis: Lenis, pin: HTMLElement, progress: number) {
-  const top = pin.getBoundingClientRect().top + window.scrollY;
-  lenis.scrollTo(top + (pin.offsetHeight - window.innerHeight) * progress, { duration: 1.2 });
-}
 
 /** Performance figures count up the first time they come into view. */
 function countUp(reducedMotion: boolean) {
@@ -134,7 +127,36 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
   });
   stage.add(interior);
 
-  if (import.meta.env.DEV) Object.assign(window, { __fx: { stage, exterior, interior } });
+  /* ADAS */
+  const adasPin = $<HTMLElement>('[data-adas-pin]');
+  const adasItems = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-adas] .adas__item'));
+  const adasDetail = $<HTMLElement>('[data-adas-detail]');
+  const adas = new AdasScene($('[data-fx="adas"]'), images, renderer, reducedMotion);
+  const showSystem = (i: number) => {
+    adasItems.forEach((b, k) => b.classList.toggle('is-active', k === i));
+    adasItems[i]?.setAttribute('aria-current', 'true');
+    adasItems.forEach((b, k) => k !== i && b.removeAttribute('aria-current'));
+    const sys = ADAS_SYSTEMS[i];
+    adasDetail.replaceChildren();
+    const code = document.createElement('strong');
+    code.textContent = sys.code;
+    adasDetail.append(code);
+    if (sys.name) {
+      const name = document.createElement('span');
+      name.className = 'adas__name';
+      name.textContent = sys.name;
+      adasDetail.append(name);
+    }
+    const th = document.createElement('p');
+    th.textContent = sys.th;
+    adasDetail.append(th);
+  };
+  adas.onActiveChange = showSystem;
+  showSystem(0);
+  adasItems.forEach((b, i) => b.addEventListener('click', () => scrollToPin(lenis, adasPin, (i + 0.5) / ADAS_COUNT)));
+  stage.add(adas);
+
+  if (import.meta.env.DEV) Object.assign(window, { __fx: { stage, exterior, interior, adas } });
 
   let last = performance.now();
   gsap.ticker.add(() => {
@@ -143,6 +165,7 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
     last = now;
     exterior.target = pinProgress(extPin);
     interior.target = pinProgress(intPin);
+    adas.target = pinProgress(adasPin);
     // the cards take over the screen in the second half
     mood.classList.toggle('is-hidden', interior.target > 0.42);
     stage.render(dt, now / 1000);

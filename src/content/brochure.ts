@@ -13,7 +13,8 @@ export const KEY_SPECS: { label: string; values: [string, string, string] }[] = 
   { label: 'ระยะทาง (NEDC)', values: ['567 km', '542 km', '600 km'] },
   { label: 'DC CCS2 สูงสุด', values: ['150 kW', '150 kW', '230 kW'] },
   { label: 'ล้ออัลลอย', values: ['19 นิ้ว', '20 นิ้ว', '20 นิ้ว'] },
-  { label: 'ที่เก็บของท้าย', values: ['500 ล.', '520 ล.', '520 ล.'] },
+  // the brochure merges Premium + AWD Performance into one 500 L cell
+  { label: 'ที่เก็บของท้าย', values: ['500 ล.', '500 ล.', '520 ล.'] },
 ];
 
 export const DIMENSIONS = {

@@ -138,14 +138,19 @@
         </div>
       </section>
 
-      <section class="section section--alt" id="adas">
-        <div class="container">
-          <p class="eyebrow">04 · ADAS</p>
-          <h2 class="title">Super Intelligent Assist</h2>
-          <p class="lead">Advanced Driver Assistance System (ADAS)</p>
-          <p class="body">มั่นใจทุกสถานการณ์ กับเทคโนโลยีความปลอดภัยขั้นสูง</p>
-          <dl class="systems" data-adas></dl>
-          <p class="note">ระบบช่วยขับขี่ไม่สามารถทดแทนความรับผิดชอบของผู้ขับขี่ต่อยานพาหนะได้</p>
+      <section class="fx-section adas" id="adas">
+        <div class="adas__pin" data-adas-pin>
+          <div class="adas__stage" data-fx="adas">
+            <div class="container adas__copy">
+              <p class="eyebrow">04 · ADAS</p>
+              <h2 class="title">Super Intelligent Assist</h2>
+              <p class="lead">Advanced Driver Assistance System (ADAS)</p>
+              <p class="body">มั่นใจทุกสถานการณ์ กับเทคโนโลยีความปลอดภัยขั้นสูง</p>
+              <ol class="adas__list" data-adas aria-label="ระบบช่วยขับขี่ 11 ระบบ"></ol>
+              <div class="adas__detail" data-adas-detail aria-live="polite"></div>
+              <p class="note">ระบบช่วยขับขี่ไม่สามารถทดแทนความรับผิดชอบของผู้ขับขี่ต่อยานพาหนะได้</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -157,37 +162,73 @@
           <div class="table-wrap">
             <table class="spec-table" data-specs></table>
           </div>
-          <p class="note">
-            ขนาดตัวรถทุกรุ่น: ยาว 4,830 · กว้าง 1,925 · สูง 1,620 · ฐานล้อ 2,930 · ระยะล้อหน้า/หลัง 1,660/1,660 มม. ·
-            ระยะทางวิ่งตามมาตรฐาน NEDC เป็นตัวเลขประมาณการณ์สำหรับอ้างอิงเท่านั้น
-          </p>
+          <div class="spec-full">
+            <div class="spec-full__head">
+              <h3 class="spec-full__title">Standard Equipment &amp; Specifications</h3>
+              <label class="switch">
+                <input type="checkbox" data-spec-diff />
+                <span class="switch__track" aria-hidden="true"></span>
+                แสดงเฉพาะที่ต่างกัน
+              </label>
+            </div>
+            <div class="spec-groups" data-spec-groups></div>
+            <ol class="spec-notes" data-spec-notes></ol>
+          </div>
         </div>
       </section>
 
-      <section class="section section--alt" id="colors">
-        <div class="container">
-          <p class="eyebrow">06 · Colors</p>
-          <h2 class="title">Exterior Color</h2>
-          <ul class="swatches" data-colors></ul>
-          <p class="body">สีภายใน: ดำ (ทุกรุ่น) · ฟ้า (AWD Ultimate)</p>
-          <p class="note">สีที่แสดงเป็นเพียงแนวทางเท่านั้น และอาจแตกต่างจากสีจริงเนื่องจากการพิมพ์</p>
+      <section class="colors" id="colors">
+        <div class="colors__pin" data-colors-pin>
+          <div class="colors__stage" data-colors-stage>
+            <div class="container colors__layout">
+              <div class="colors__copy">
+                <p class="eyebrow">06 · Colors</p>
+                <h2 class="title">Exterior Color</h2>
+                <p class="colors__name" data-color-name aria-live="polite"></p>
+                <ul class="colors__variants" data-color-variants aria-label="มีในรุ่น"></ul>
+                <ul class="swatches" data-colors aria-label="เลือกสี"></ul>
+                <p class="body colors__interior">สีภายใน: ดำ (ทุกรุ่น) · ฟ้า (AWD Ultimate)</p>
+                <p class="note">สีที่แสดงเป็นเพียงแนวทางเท่านั้น และอาจแตกต่างจากสีจริงเนื่องจากการพิมพ์</p>
+              </div>
+              <div class="colors__car" data-color-car>
+                <div class="colors__podium" aria-hidden="true"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <footer class="section footer" id="contact">
-        <div class="container">
-          <p class="eyebrow">Contact</p>
-          <h2 class="title">Life in Motion</h2>
-          <address>
-            <strong>REVER AUTOMOTIVE CO., LTD. (HEAD OFFICE)</strong><br />
-            865 Siam at Siam Hotel Bldg. 9th Fl., Rama 1 Road, Wangmai, Pathumwan, Bangkok 10330<br />
-            โทร <a href="tel:027668880">02 766 8880</a> · อีเมล
-            <a href="mailto:contact@reverautomotive.com">contact@reverautomotive.com</a>
-          </address>
-          <p class="note">
-            สีที่แสดงเป็นเพียงแนวทางเท่านั้นและอาจแตกต่างจากสีจริง · ระบบช่วยขับขี่ไม่สามารถทดแทนความรับผิดชอบของผู้ขับขี่ต่อยานพาหนะได้ ·
-            BYD ขอสงวนสิทธิ์ในการเปลี่ยนแปลงข้อมูลคุณสมบัติของรถยนต์และอุปกรณ์มาตรฐานจากรายละเอียดในเอกสารนี้
-          </p>
+      <footer class="footer" id="contact">
+        <div class="contact__pin" data-contact-pin>
+          <div class="contact__stage" data-contact-stage>
+            <img class="contact__mist" src="./assets/contact-mist.webp" alt="" loading="lazy" decoding="async" />
+            <img
+              class="contact__car"
+              src="./assets/car-rear.webp"
+              alt="BYD SEALION 7 มุมด้านหลัง"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="contact__fog" aria-hidden="true"></div>
+            <p class="contact__tag" aria-hidden="true">Life in Motion</p>
+          </div>
+        </div>
+        <div class="section contact__info">
+          <div class="container">
+            <p class="eyebrow">Contact</p>
+            <h2 class="title">Life in Motion</h2>
+            <address>
+              <strong>REVER AUTOMOTIVE CO., LTD. (HEAD OFFICE)</strong><br />
+              865 Siam at Siam Hotel Bldg. 9th Fl., Rama 1 Road, Wangmai, Pathumwan, Bangkok 10330<br />
+              โทร <a href="tel:027668880">02 766 8880</a> · อีเมล
+              <a href="mailto:contact@reverautomotive.com">contact@reverautomotive.com</a><br />
+              <a href="https://reverautomotive.com" rel="noopener">reverautomotive.com</a> · Facebook: BYD REVER THAILAND
+            </address>
+            <p class="note">
+              สีที่แสดงเป็นเพียงแนวทางเท่านั้นและอาจแตกต่างจากสีจริง · ระบบช่วยขับขี่ไม่สามารถทดแทนความรับผิดชอบของผู้ขับขี่ต่อยานพาหนะได้ ·
+              BYD ขอสงวนสิทธิ์ในการเปลี่ยนแปลงข้อมูลคุณสมบัติของรถยนต์และอุปกรณ์มาตรฐานจากรายละเอียดในเอกสารนี้
+            </p>
+          </div>
         </div>
       </footer>
     </main>

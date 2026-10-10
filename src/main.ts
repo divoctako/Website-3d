@@ -7,6 +7,8 @@ import Lenis from 'lenis';
 import { Book, STEPS } from './gl/book/Book';
 import { IMAGE_SOURCES, type Images } from './gl/book/spreads';
 import { loadImage, setPageResolution } from './gl/textures';
+import { startColors } from './ui/colors';
+import { startContact } from './ui/contact';
 import { startFx } from './ui/fx';
 import { renderSections } from './ui/sections';
 
@@ -36,6 +38,11 @@ const lenis = new Lenis({ duration: 1.15, smoothWheel: !reducedMotion });
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((t) => lenis.raf(t * 1000));
 gsap.ticker.lagSmoothing(0);
+if (import.meta.env.DEV) Object.assign(window, { __lenis: lenis });
+
+// plain-DOM sections: no WebGL needed, so they don't wait for the book
+startColors(reducedMotion);
+startContact(reducedMotion);
 
 function scrollToStep(step: number) {
   const top = bookEl.offsetTop;

@@ -1,7 +1,7 @@
 # งานที่เหลือ (handoff)
 
 สถานะ ณ commit `314eb87` บน branch `claude/sealion7-spec` (เป็น default branch ของ repo ด้วย)
-- เสร็จแล้ว: M0 setup, M1 prototype หนังสือ, M2 หนังสือครบ 6 spread + tabs + section เนื้อหาแบบ HTML, M3 ฉาก 3D ของ Performance / Exterior / Interior
+- เสร็จแล้ว: M0 setup, M1 prototype หนังสือ, M2 หนังสือครบ 6 spread + tabs + section เนื้อหาแบบ HTML, M3 ฉาก 3D ของ Performance / Exterior / Interior, M4 ADAS / Specs / Colors / Contact
 - เว็บจริง: https://divoctako.github.io/Website-3d/ ทุกครั้งที่ push ขึ้น `claude/sealion7-spec` workflow `.github/workflows/pages.yml` จะ build แล้ว deploy ขึ้น `gh-pages` ให้เอง
 - Spec เต็มอยู่ที่ [`SPEC.md`](SPEC.md) (§4 = เนื้อหาและ 3D ของแต่ละ section, §9 = milestones, §10 = คำถามค้าง)
 
@@ -34,7 +34,11 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
 | `src/main.ts` | Lenis + ScrollTrigger, snap, tabs, คลิก pop-up, ปรับ DPR อัตโนมัติ |
 | `src/gl/fx/FxStage.ts` | canvas three.js ตัวที่สอง (fixed หลังเนื้อหา) วาดแต่ละฉากเฉพาะในกรอบ `[data-fx]` ที่อยู่ในจอ (scissor) |
 | `src/gl/fx/PerformanceScene.ts` · `ExteriorScene.ts` · `InteriorScene.ts` | ฉาก 3D ของแต่ละ section |
-| `src/ui/fx.ts` | โหลดรูป, ผูก scroll กับฉาก, count-up, hotspot, ปุ่มจังหวะ (`window.__fx` ใช้ debug ในโหมด dev) |
+| `src/ui/fx.ts` | โหลดรูป, ผูก scroll กับฉาก, count-up, hotspot, ปุ่มจังหวะ, รายการ ADAS (`window.__fx`, `window.__lenis` ใช้ debug ในโหมด dev) |
+| `src/gl/fx/AdasScene.ts` | ฉากถนน ADAS (shader เลน + โซนเซนเซอร์ 11 ระบบ) |
+| `src/content/specTable.ts` | ตารางสเปกเต็มจาก brochure หน้า 4 (11 หมวด) + เชิงอรรถ ①–⑤ |
+| `src/ui/colors.ts` · `src/ui/contact.ts` · `src/ui/pin.ts` | Colors และ Contact (HTML/CSS ไม่ใช้ WebGL) และ helper ของ section ที่ pin |
+| `pic/` · `scripts/process-pic.py` | รูปที่ generate เพิ่ม (prompt ใน `pic/PROMPTS.md`) และสคริปต์ไดคัท/แปลงเป็น webp ลง `public/assets/` |
 | `scripts/extract-pdf-assets.sh` | ดึงรูปจาก `source/BYD_SEALION_7.pdf` → `public/assets/*.webp` |
 
 ## M3 — 3D effect ของ section Performance, Exterior, Interior ✅
@@ -49,12 +53,19 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
   - ตรวจแล้วบน Chromium ที่ 1280×720 และ 375×812 ยังไม่ได้ลองบนเครื่องจริง
   - `prefers-reduced-motion` ตอนนี้แค่ตัด damping/count-up/การลอย ยังคง pin อยู่ (ทำต่อใน M5)
 
-## M4 — ADAS, Specs, Colors, Contact
+## M4 — ADAS, Specs, Colors, Contact ✅
 
-- [ ] **ADAS:** ฉาก 3D ถนน (plane + เส้นเลนด้วย shader) และ scroll ไฮไลต์ทีละระบบตาม SPEC §4 [4] โดยรายการใน `[data-adas]` active ตาม
-- [ ] **Specs:** ตารางเต็มทุกหมวดจาก brochure หน้า 4 (ตอนนี้มีแค่ `KEY_SPECS` 9 แถว) เป็น accordion พร้อมสวิตช์ "แสดงเฉพาะที่ต่างกัน" ต้องถอดตารางเต็มเพิ่มใน `brochure.ts` ก่อน (ใช้ `pdftotext -layout` กับ `source/BYD_SEALION_7.pdf`)
-- [ ] **Colors:** ตัวเลือกสีที่สลับรูป `car-color-*.webp` และ tint พื้นหลัง ≤ 8% พร้อม badge บอกว่ามีในรุ่นไหน
-- [ ] **Contact:** รถด้านหลังค่อย ๆ ถอยหายเข้าไปในหมอกขาว
+- [x] **ADAS:** pin 640vh ถนนเป็น plane + shader เส้นเลน (เลื่อนตามความเร็วรถ) กล้องมองจากหลังเฉียงบน รถเป็น billboard `car-rear-34-top` แต่ละระบบมีโซนเซนเซอร์ของตัวเอง (วงแหวน 360°, กรวยหน้า/หลัง, กล่อง BSD/DOW, พัด FCTA/RCTA, เส้นเลนเรืองแสง LDA, ไฟหน้าสลับสูง/ต่ำ HMA) รถคันหน้า (`lead-car-rear`) โผล่ใน ICC / AEB / FCW / BSD รายการชิปคลิกแล้วเลื่อนไปที่ระบบนั้น
+- [x] **Specs:** ถอดตารางหน้า 4 ครบ 11 หมวดลง `specTable.ts` (เทียบกับภาพหน้า PDF ทีละแถวเพราะ `pdftotext` ทำสระไทยเพี้ยน) แสดงเป็น `<details>` ช่องที่ brochure merge ก็ merge ตาม แถวที่ต่างกันเน้นสี สวิตช์ "แสดงเฉพาะที่ต่างกัน" และเชิงอรรถ ①–⑤
+  - แก้ `KEY_SPECS`: ที่เก็บของท้ายของ AWD Performance คือ **500** ลิตร (เดิมใส่ 520) ใน brochure ช่องนี้ merge กับ Premium
+- [x] **Colors:** pin 360vh scroll ไล่ 6 สี (หยุดไล่เมื่อผู้ใช้กดเลือกเอง จนกว่าจะ scroll ออกจาก section) สลับรูป `car-color-*-hd.webp` แบบ crossfade บนแท่นขาว พื้นหลัง tint 8% และ badge รุ่นที่มีสีนั้น
+- [x] **Contact:** pin 240vh รถด้านหลัง (`car-rear.webp`) ขับถอยเข้าไปในหมอก (`contact-mist.webp`) แล้วขึ้น "LIFE IN MOTION" ตามด้วยที่อยู่ Rever + reverautomotive.com + Facebook ตามที่ brochure พิมพ์
+- ข้อจำกัด / ยังไม่ได้ทำ:
+  - **รูปที่ AI generate** (สีรถ 6 สี, ด้านหลัง, หลังเฉียงบน, มุมบน, รถคันหน้า, หมอก) เป็นของชั่วคราว ต้องเปลี่ยนเป็นรูปจริงจาก BYD/Rever ก่อนใช้งานจริง (SPEC §10 ข้อ 1, 4) ลบป้าย "4.5S" ที่ AI เติมมาออกแล้วใน `process-pic.py`
+  - รูปด้านหลังของจริงมีใน PDF หน้า 4 (ช่อง DIMENSION) แต่กว้างแค่ 334 px ใช้เทียบดีไซน์ได้อย่างเดียว
+  - `car-top.png` ยังไม่ได้ใช้ (เผื่อไว้สำหรับมุมมองจากบนใน ADAS)
+  - บนมือถือ รถคันหน้าของ ICC / AEB อยู่นอกจอ เพราะจอแคบ
+  - Specs ยังไม่มี blueprint เส้นวาดตาม scroll และการเลือกเปรียบเทียบทีละ 2 รุ่นบนมือถือ (SPEC §4 [5])
 
 ## M5 — มือถือ, การเข้าถึง, ประสิทธิภาพ
 
