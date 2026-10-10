@@ -20,6 +20,8 @@ export class Leaf {
   readonly back: THREE.Mesh;
   /** Pop-up pieces glued to this leaf; they follow the bent page. */
   readonly pieces: { piece: PopUpPiece; side: 'front' | 'back'; d: number }[] = [];
+  /** Objects glued to the free edge (index tabs); they turn with the page. */
+  readonly edge: THREE.Object3D[] = [];
 
   angle = 0;
   private readonly frontGeo: THREE.BufferGeometry;
@@ -102,6 +104,11 @@ export class Leaf {
     this.group.add(piece.root);
   }
 
+  attachToEdge(obj: THREE.Object3D) {
+    this.edge.push(obj);
+    this.group.add(obj);
+  }
+
   update(angle: number) {
     this.angle = angle;
     const t = angle / Math.PI;
@@ -141,6 +148,11 @@ export class Leaf {
       const phi = THREE.MathUtils.lerp(this.curvePhi[i0], this.curvePhi[i0 + 1], k);
       p.piece.root.position.set(x, y, p.piece.z);
       p.piece.root.rotation.z = p.side === 'front' ? phi : phi + Math.PI;
+    }
+    for (const obj of this.edge) {
+      obj.position.x = this.curveX[SEGMENTS];
+      obj.position.y = this.curveY[SEGMENTS];
+      obj.rotation.z = this.curvePhi[SEGMENTS];
     }
   }
 }

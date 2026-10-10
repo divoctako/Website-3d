@@ -4,20 +4,37 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { Book, STEPS } from './gl/book/Book';
+import { Book, bookState, PAGE_STEPS, STEPS, stepForSpread } from './gl/book/Book';
 import { IMAGE_SOURCES, type Images } from './gl/book/spreads';
 import { loadImage, setPageResolution } from './gl/textures';
 import { startColors } from './ui/colors';
 import { startContact } from './ui/contact';
-import { startFx } from './ui/fx';
-import { renderSections } from './ui/sections';
+import { renderSections, startStaticSections } from './ui/sections';
+import { startStaticBook } from './ui/staticBook';
 
 gsap.registerPlugin(ScrollTrigger);
 renderSections();
 
 const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// dev-only switches to try the fallbacks: ?reduced and ?nowebgl
+const devFlag = (name: string) => import.meta.env.DEV && new URLSearchParams(location.search).has(name);
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || devFlag('reduced');
 const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+function hasWebGL() {
+  try {
+    const c = document.createElement('canvas');
+    return Boolean(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+const webgl = hasWebGL() && !devFlag('nowebgl');
+// without WebGL, or with reduced motion, the book is a still image per spread
+const staticBook = !webgl || reducedMotion;
+document.documentElement.classList.toggle('no-webgl', !webgl);
+document.documentElement.classList.toggle('static-book', staticBook);
+document.documentElement.classList.toggle('reduced-motion', reducedMotion);
 
 const canvas = $<HTMLCanvasElement>('[data-book-canvas]');
 const bookEl = $<HTMLElement>('#book');
@@ -29,8 +46,16 @@ const navProgress = $<HTMLElement>('[data-progress]');
 const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-step]'));
 const tabList = $<HTMLElement>('.book__tabs');
 
+/** Portrait phones see one page at a time (must match Book.resize). */
+const isPageMode = () => window.innerWidth / window.innerHeight < 0.8;
+let pageMode = isPageMode();
+const stepCount = () => (pageMode ? PAGE_STEPS : STEPS);
+
 // one viewport of scroll per step, plus the viewport the stage itself fills
-bookEl.style.height = `${(STEPS + 1) * 100}vh`;
+const setBookHeight = () => {
+  bookEl.style.height = staticBook ? '' : `${(stepCount() + 1) * 100}vh`;
+};
+setBookHeight();
 
 /* ---------------------------------------------------------- smooth scroll */
 
@@ -47,11 +72,11 @@ startContact(reducedMotion);
 function scrollToStep(step: number) {
   const top = bookEl.offsetTop;
   const span = bookEl.offsetHeight - window.innerHeight;
-  lenis.scrollTo(top + (span * step) / STEPS, { duration: 1.4 });
+  lenis.scrollTo(top + (span * step) / stepCount(), { duration: 1.4 });
 }
 
 function scrollToSection(id: string) {
-  lenis.scrollTo(`#${id}`, { offset: -64, duration: 1.6 });
+  lenis.scrollTo(`#${id}`, { offset: -64, duration: reducedMotion ? 0 : 1.6, immediate: reducedMotion });
 }
 
 for (const a of document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')) {
@@ -59,11 +84,11 @@ for (const a of document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')) {
     const id = a.getAttribute('href')!.slice(1);
     if (!id) return;
     e.preventDefault();
-    if (id === 'top') lenis.scrollTo(0, { duration: 1.6 });
+    if (id === 'top') lenis.scrollTo(0, { duration: 1.6, immediate: reducedMotion });
     else scrollToSection(id);
   });
 }
-tabs.forEach((b) => b.addEventListener('click', () => scrollToStep(Number(b.dataset.step))));
+if (!staticBook) tabs.forEach((b) => b.addEventListener('click', () => scrollToStep(stepForSpread(Number(b.dataset.step), pageMode))));
 $('[data-skip]').addEventListener('click', () => scrollToSection('performance'));
 
 ScrollTrigger.create({
@@ -72,6 +97,14 @@ ScrollTrigger.create({
   onUpdate: (self) => {
     navProgress.style.transform = `scaleX(${self.progress})`;
   },
+});
+
+// nav shows once the book is behind us
+ScrollTrigger.create({
+  trigger: '#performance',
+  start: 'top 80%',
+  onToggle: (self) => nav.classList.toggle('is-visible', self.isActive),
+  end: 'max',
 });
 
 /* ------------------------------------------------------------------ boot */
@@ -98,32 +131,46 @@ async function loadAll(onProgress: (p: number) => void) {
   return Object.fromEntries(images) as Images;
 }
 
-async function boot() {
-  const images = await loadAll((p) => loader.style.setProperty('--p', `${Math.round(p * 100)}%`));
+function setActiveTab(active: number) {
+  tabs.forEach((b, i) => b.classList.toggle('is-active', i === active));
+  // keep the active tab in view when the tab row scrolls (phones)
+  const tab = tabs[active];
+  if (tab && tabList.scrollWidth > tabList.clientWidth) {
+    tabList.scrollTo({ left: tab.parentElement!.offsetLeft - (tabList.clientWidth - tab.offsetWidth) / 2, behavior: 'smooth' });
+  }
+}
 
+function boot3D(images: Images) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
 
-  // 14 page textures: keep them lighter on phones
+  // 14 page textures: lighter on phones, but a page fills the screen there, so not too light
   const small = Math.min(window.screen.width, window.screen.height) < 768;
-  setPageResolution(small ? 0.7 : 1);
+  setPageResolution(small ? 0.85 : 1);
   const book = new Book(images, renderer);
   if (import.meta.env.DEV) Object.assign(window, { __book: book, __THREE: THREE });
 
+  // never below 1.5× on high-density screens: lower looks blurry on phones
+  const dprFloor = window.devicePixelRatio >= 2 ? 1.5 : 1;
   let dpr = Math.min(window.devicePixelRatio, 2);
   const resize = () => {
     const { clientWidth: w, clientHeight: h } = canvas;
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     book.resize(w, h);
+    if (isPageMode() !== pageMode) {
+      pageMode = isPageMode();
+      setBookHeight();
+      ScrollTrigger.refresh();
+    }
   };
   resize();
   window.addEventListener('resize', resize);
 
-  // scroll → book progress (in steps), snapping to whole spreads
+  // scroll → book position (in steps), snapping to whole steps
   let target = 0;
   let current = 0;
   ScrollTrigger.create({
@@ -131,32 +178,29 @@ async function boot() {
     start: 'top top',
     end: 'bottom bottom',
     onUpdate: (self) => {
-      target = self.progress * STEPS;
+      target = self.progress * stepCount();
     },
-    snap: reducedMotion
-      ? undefined
-      : { snapTo: 1 / STEPS, duration: { min: 0.35, max: 0.9 }, delay: 0.12, ease: 'power2.inOut' },
+    snap: {
+      snapTo: (v: number) => Math.round(v * stepCount()) / stepCount(),
+      duration: { min: 0.35, max: 0.9 },
+      delay: 0.12,
+      ease: 'power2.inOut',
+    },
   });
 
-  // nav shows once the book is behind us
-  ScrollTrigger.create({
-    trigger: '#performance',
-    start: 'top 80%',
-    onToggle: (self) => nav.classList.toggle('is-visible', self.isActive),
-    end: 'max',
-  });
-
-  // pointer: tilt + clickable pop-ups
-  let hovered: ReturnType<Book['hitTest']> = null;
-  canvas.addEventListener('pointermove', (e) => {
+  // pointer: tilt, clickable pop-ups and index tabs
+  const pointAt = (e: PointerEvent | MouseEvent) => {
     const r = canvas.getBoundingClientRect();
     book.setPointer(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    hovered = book.hitTest();
-    canvas.classList.toggle('is-pointer', Boolean(hovered?.section));
+  };
+  canvas.addEventListener('pointermove', (e) => {
+    pointAt(e);
+    canvas.classList.toggle('is-pointer', book.hitTab() >= 0 || Boolean(book.hitTest()?.section));
   });
   canvas.addEventListener('click', (e) => {
-    const r = canvas.getBoundingClientRect();
-    book.setPointer(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    pointAt(e);
+    const tab = book.hitTab();
+    if (tab >= 0) return scrollToStep(stepForSpread(tab, pageMode));
     const piece = book.hitTest();
     if (piece?.section) scrollToSection(piece.section);
   });
@@ -165,7 +209,6 @@ async function boot() {
   let visible = true;
   new IntersectionObserver(([entry]) => (visible = entry.isIntersecting)).observe(bookEl);
 
-  // drop resolution if frames are slow for a while
   let activeTab = -1;
   let slowFor = 0;
   let last = performance.now();
@@ -175,32 +218,35 @@ async function boot() {
     last = now;
     if (!visible) return;
 
-    current = reducedMotion ? target : THREE.MathUtils.damp(current, target, 7, dt);
+    current = THREE.MathUtils.damp(current, target, 7, dt);
     if (Math.abs(current - target) < 0.0005) current = target;
-    book.update(current, dt, finePointer && !reducedMotion);
+    const state = bookState(current, pageMode);
+    book.update(state.p, dt, finePointer, state.focus);
     renderer.render(book.scene, book.camera);
 
     fade.style.opacity = String(book.diveAmount);
     hint.style.opacity = current < 0.15 ? '1' : '0';
-    const active = Math.min(Math.round(current), STEPS - 1);
+    const active = Math.min(Math.round(state.p), STEPS - 1);
     if (active !== activeTab) {
       activeTab = active;
-      tabs.forEach((b, i) => b.classList.toggle('is-active', i === active));
-      // keep the active tab in view when the tab row scrolls (phones)
-      const tab = tabs[active];
-      if (tab && tabList.scrollWidth > tabList.clientWidth) {
-        tabList.scrollTo({ left: tab.parentElement!.offsetLeft - (tabList.clientWidth - tab.offsetWidth) / 2, behavior: 'smooth' });
-      }
+      setActiveTab(active);
+      book.setActiveTab(active);
     }
 
+    // drop resolution if frames are slow for a while
     slowFor = dt > 1 / 45 ? slowFor + dt : 0;
-    if (slowFor > 2 && dpr > 1) {
-      dpr = Math.max(1, dpr - 0.5);
+    if (slowFor > 2 && dpr > dprFloor) {
+      dpr = Math.max(dprFloor, dpr - 0.5);
       slowFor = 0;
       resize();
     }
   });
+}
 
+async function boot() {
+  const images = await loadAll((p) => loader.style.setProperty('--p', `${Math.round(p * 100)}%`));
+  if (staticBook) startStaticBook(images, $('[data-book-flat]'), tabs, scrollToSection);
+  else boot3D(images);
   loader.classList.add('is-done');
 }
 
@@ -209,6 +255,10 @@ boot()
     console.error(err);
     loader.querySelector('span')!.textContent = 'ไม่สามารถโหลดหนังสือได้';
   })
-  // section scenes load after the book, so they don't hold up the first screen
-  .then(() => startFx(lenis, reducedMotion))
+  // section scenes (their own chunk) load after the book, so they don't hold up the first screen
+  .then(async () => {
+    if (!webgl) return startStaticSections();
+    const { startFx } = await import('./ui/fx');
+    await startFx(lenis, reducedMotion);
+  })
   .catch((err) => console.error(err));

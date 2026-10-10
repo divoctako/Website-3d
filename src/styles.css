@@ -1137,6 +1137,113 @@ a {
   }
 }
 
+/* ---------- M5 ---------- */
+
+/* the book as still images (no WebGL, or reduced motion): not pinned */
+.book__flat {
+  display: none;
+}
+.static-book .book {
+  height: auto;
+}
+.static-book .book__stage {
+  position: relative;
+}
+.static-book .book__canvas,
+.static-book .book__hint,
+.static-book .book__fade {
+  display: none;
+}
+.static-book .book__flat {
+  position: absolute;
+  inset: 64px 220px 72px 24px;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+}
+.book__flat-page {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  min-height: 0;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+}
+.book__flat-page.is-active {
+  opacity: 1;
+}
+
+/* desktop: the 3D index tabs on the book replace the HTML ones, which stay for keyboards */
+@media (min-aspect-ratio: 4/5) {
+  html:not(.static-book) .book__tabs:not(:focus-within) {
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+}
+
+/* reduced motion (class set from JS, also for the media query): nothing pinned, nothing scrubbed */
+.reduced-motion :is(.ext__pin, .int__pin, .adas__pin, .colors__pin, .contact__pin) {
+  height: auto;
+}
+.reduced-motion :is(.ext__stage, .int__stage, .adas__stage, .colors__stage, .contact__stage) {
+  position: relative;
+}
+.reduced-motion .int__mood {
+  display: none;
+}
+.reduced-motion :is(.book__flat-page, .colors__img, .colors__stage) {
+  transition: none;
+}
+
+/* no WebGL: the section scenes become still photos */
+.no-webgl .ext__pin,
+.no-webgl .int__pin,
+.no-webgl .adas__pin {
+  height: auto;
+}
+.no-webgl .ext__stage,
+.no-webgl .int__stage,
+.no-webgl .adas__stage {
+  position: relative;
+}
+.no-webgl .fx-canvas,
+.no-webgl .int__mood,
+.no-webgl .ext__hotspots {
+  display: none;
+}
+.no-webgl .perf__stage {
+  background:
+    url('/assets/car-side.webp') 50% 82% / min(62%, 905px) auto no-repeat,
+    url('/assets/bg-sky-mist.webp') center / cover;
+}
+.no-webgl .ext__stage {
+  background: var(--surface) url('/assets/car-side.webp') 88% 62% / min(50%, 905px) auto no-repeat;
+}
+.no-webgl .int__stage {
+  background: url('/assets/interior-wide.webp') center / contain no-repeat;
+}
+.no-webgl .adas__stage {
+  background: #f3f4f8 url('/assets/adas-road.webp') right center / auto 100% no-repeat;
+}
+@media (max-width: 899px) {
+  .no-webgl .ext__stage {
+    background-position: 50% 30%;
+    background-size: 88% auto;
+  }
+  .no-webgl .adas__stage {
+    background-position: 70% 0;
+    background-size: auto 55%;
+  }
+}
+@media (max-width: 767px) {
+  .static-book .book__flat {
+    inset: 72px 12px 140px;
+  }
+}
+
 @media (max-width: 1100px) {
   .nav__links a:not(:last-child) {
     display: none;

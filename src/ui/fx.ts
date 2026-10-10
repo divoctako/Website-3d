@@ -1,6 +1,5 @@
 import gsap from 'gsap';
 import type Lenis from 'lenis';
-import { ADAS_SYSTEMS } from '../content/brochure';
 import { AdasScene, ADAS_COUNT } from '../gl/fx/AdasScene';
 import { ExteriorScene, EXTERIOR_FEATURES } from '../gl/fx/ExteriorScene';
 import { FxStage } from '../gl/fx/FxStage';
@@ -8,6 +7,7 @@ import { InteriorScene, SHADES } from '../gl/fx/InteriorScene';
 import { PerformanceScene } from '../gl/fx/PerformanceScene';
 import { loadImage } from '../gl/textures';
 import { pinProgress, scrollToPin } from './pin';
+import { setExteriorFeature, showAdasSystem } from './sections';
 
 const FX_IMAGES = {
   carSide: 'assets/car-side.webp',
@@ -93,7 +93,12 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
   const extPin = $<HTMLElement>('[data-ext-pin]');
   const extItems = Array.from(document.querySelectorAll<HTMLLIElement>('#exterior .features li'));
   const hotspotLayer = $<HTMLElement>('[data-ext-hotspots]');
-  const goToFeature = (i: number) => scrollToPin(lenis, extPin, (i + 0.5) / EXTERIOR_FEATURES.length);
+  // with reduced motion nothing is pinned: a click picks the feature directly
+  const goToFeature = (i: number) => {
+    const p = (i + 0.5) / EXTERIOR_FEATURES.length;
+    if (reducedMotion) exterior.target = p;
+    else scrollToPin(lenis, extPin, p);
+  };
   const hotspots = extItems.map((li, i) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -107,9 +112,8 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
     return b;
   });
   const exterior = new ExteriorScene($('[data-fx="exterior"]'), hotspots, images, renderer, reducedMotion);
-  const setActive = (i: number) => extItems.forEach((li, k) => li.classList.toggle('is-active', k === i));
-  exterior.onActiveChange = setActive;
-  setActive(0);
+  exterior.onActiveChange = setExteriorFeature;
+  setExteriorFeature(0);
   stage.add(exterior);
 
   /* interior */
@@ -118,6 +122,8 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
   const beatBtn = $<HTMLButtonElement>('[data-int-beat]');
   const mood = $<HTMLElement>('.int__mood');
   const interior = new InteriorScene($('[data-fx="interior"]'), images, renderer, reducedMotion);
+  // reduced motion: a still view across the middle of the cabin
+  if (reducedMotion) interior.target = 0.3;
   interior.onShadeChange = (s) => {
     shadeLabel.textContent = `${s + 1} / ${SHADES}`;
   };
@@ -130,30 +136,16 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
   /* ADAS */
   const adasPin = $<HTMLElement>('[data-adas-pin]');
   const adasItems = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-adas] .adas__item'));
-  const adasDetail = $<HTMLElement>('[data-adas-detail]');
   const adas = new AdasScene($('[data-fx="adas"]'), images, renderer, reducedMotion);
-  const showSystem = (i: number) => {
-    adasItems.forEach((b, k) => b.classList.toggle('is-active', k === i));
-    adasItems[i]?.setAttribute('aria-current', 'true');
-    adasItems.forEach((b, k) => k !== i && b.removeAttribute('aria-current'));
-    const sys = ADAS_SYSTEMS[i];
-    adasDetail.replaceChildren();
-    const code = document.createElement('strong');
-    code.textContent = sys.code;
-    adasDetail.append(code);
-    if (sys.name) {
-      const name = document.createElement('span');
-      name.className = 'adas__name';
-      name.textContent = sys.name;
-      adasDetail.append(name);
-    }
-    const th = document.createElement('p');
-    th.textContent = sys.th;
-    adasDetail.append(th);
-  };
-  adas.onActiveChange = showSystem;
-  showSystem(0);
-  adasItems.forEach((b, i) => b.addEventListener('click', () => scrollToPin(lenis, adasPin, (i + 0.5) / ADAS_COUNT)));
+  adas.onActiveChange = showAdasSystem;
+  showAdasSystem(0);
+  adasItems.forEach((b, i) =>
+    b.addEventListener('click', () => {
+      const p = (i + 0.5) / ADAS_COUNT;
+      if (reducedMotion) adas.target = p;
+      else scrollToPin(lenis, adasPin, p);
+    }),
+  );
   stage.add(adas);
 
   if (import.meta.env.DEV) Object.assign(window, { __fx: { stage, exterior, interior, adas } });
@@ -163,9 +155,11 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
     const now = performance.now();
     const dt = Math.min((now - last) / 1000, 0.1);
     last = now;
-    exterior.target = pinProgress(extPin);
-    interior.target = pinProgress(intPin);
-    adas.target = pinProgress(adasPin);
+    if (!reducedMotion) {
+      exterior.target = pinProgress(extPin);
+      interior.target = pinProgress(intPin);
+      adas.target = pinProgress(adasPin);
+    }
     // the cards take over the screen in the second half
     mood.classList.toggle('is-hidden', interior.target > 0.42);
     stage.render(dt, now / 1000);

@@ -30,6 +30,12 @@ export interface PageArt {
   pieces: { leaf: number; side: 'front' | 'back'; x: number; piece: PopUpPiece }[];
 }
 
+/** The same art as plain canvases (no WebGL), e.g. for the flat fallback book. */
+export interface PageCanvases {
+  pages: { front: HTMLCanvasElement; back: HTMLCanvasElement }[];
+  pieces: { leaf: number; side: 'front' | 'back'; x: number; canvas: HTMLCanvasElement; opts: PieceOptions }[];
+}
+
 const W = PAGE_W * PX;
 const H = PAGE_H * PX;
 const M = 84; // page margin in px
@@ -594,14 +600,21 @@ function backCover() {
 type Side = 'front' | 'back';
 type PieceOptions = ConstructorParameters<typeof PopUpPiece>[1];
 
+export function buildPageArt(img: Images, renderer: THREE.WebGLRenderer): PageArt {
+  const tex = (c: HTMLCanvasElement) => toTexture(c, renderer);
+  const art = buildPageCanvases(img);
+  return {
+    pages: art.pages.map((p) => ({ front: tex(p.front), back: tex(p.back) })),
+    pieces: art.pieces.map(({ leaf, side, x, canvas, opts }) => ({ leaf, side, x, piece: new PopUpPiece(tex(canvas), opts) })),
+  };
+}
+
 /**
  * Leaf i carries the right page of spread i on its front and the left page
  * of spread i + 1 on its back. Leaf 0 is the cover; the last leaf is the
  * back board, which never turns.
  */
-export function buildPageArt(img: Images, renderer: THREE.WebGLRenderer): PageArt {
-  const tex = (c: HTMLCanvasElement) => toTexture(c, renderer);
-
+export function buildPageCanvases(img: Images): PageCanvases {
   const pages = [
     { front: cover(img), back: performanceLeft() },
     { front: performanceRight(img), back: exteriorLeft() },
@@ -610,11 +623,11 @@ export function buildPageArt(img: Images, renderer: THREE.WebGLRenderer): PageAr
     { front: adasRight(), back: specsLeft() },
     { front: specsRight(), back: colorsLeft() },
     { front: colorsRight(), back: backCover() },
-  ].map((p) => ({ front: tex(p.front), back: tex(p.back) }));
+  ];
 
-  const pieces: PageArt['pieces'] = [];
+  const pieces: PageCanvases['pieces'] = [];
   const add = (leaf: number, side: Side, x: number, canvas: HTMLCanvasElement, opts: PieceOptions) =>
-    pieces.push({ leaf, side, x, piece: new PopUpPiece(tex(canvas), opts) });
+    pieces.push({ leaf, side, x, canvas, opts });
 
   // cards keep one scale even when long text makes the canvas wider
   const statWidth = (c: HTMLCanvasElement, base: number) => (base * c.width) / 420;

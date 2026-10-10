@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { Leaf } from './Leaf';
+import { Leaf, PAGE_H } from './Leaf';
+import { COLORS, FONT_BODY, FONT_DISPLAY, makeCanvas, roundRect } from '../textures';
 import type { PopUpPiece } from './PopUpPiece';
 import { buildPageArt, type Images } from './spreads';
 
@@ -7,6 +8,55 @@ import { buildPageArt, type Images } from './spreads';
 export const SPREADS = 6;
 /** Scroll steps: 0 closed · 1…SPREADS one per spread · last: dive into the page. */
 export const STEPS = SPREADS + 1;
+/** On narrow screens each spread takes two steps: its left page, then its right page. */
+export const PAGE_STEPS = SPREADS * 2 + 1;
+
+/**
+ * Book state for a scroll position `q` in steps. In page mode the camera looks
+ * at one page at a time (`focus` −1 left … +1 right) and pans across the turn.
+ */
+export function bookState(q: number, pageMode: boolean) {
+  if (!pageMode) return { p: q, focus: 0 };
+  if (q <= 1) return { p: q, focus: -1 };
+  if (q >= SPREADS * 2) return { p: SPREADS + (q - SPREADS * 2), focus: 1 };
+  const k = q - 1;
+  const s = 1 + Math.floor(k / 2);
+  const f = k - (s - 1) * 2;
+  if (f < 1) return { p: s, focus: THREE.MathUtils.lerp(-1, 1, smoothT(f)) };
+  return { p: s + (f - 1), focus: THREE.MathUtils.lerp(1, -1, smoothT(f - 1)) };
+}
+
+/** Scroll step that shows spread `spread` (0 = cover). */
+export function stepForSpread(spread: number, pageMode: boolean) {
+  return pageMode ? Math.max(0, spread * 2 - 1) : spread;
+}
+
+const smoothT = (t: number) => t * t * (3 - 2 * t);
+
+/** Labels of the index tabs, one per leaf (cover + six spreads). */
+export const TAB_LABELS = ['ปก', 'Performance', 'Exterior', 'Interior', 'ADAS', 'Specs', 'Colors'];
+const TAB_W = 0.2; // how far a tab sticks out past the page edge
+const TAB_H = 0.15;
+const TAB_GAP = 0.19;
+
+/** Tab label art; the paper overlaps the page so the tab looks glued on. */
+function tabCanvas(i: number, active: boolean) {
+  const { canvas, ctx } = makeCanvas(420, 300);
+  roundRect(ctx, -40, 6, 450, 288, 34);
+  ctx.fillStyle = active ? COLORS.navy : COLORS.paper;
+  ctx.fill();
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = active ? COLORS.navy : COLORS.line;
+  ctx.stroke();
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = active ? '#c9c5f0' : COLORS.accent;
+  ctx.font = `400 84px ${FONT_DISPLAY}`;
+  ctx.fillText(String(i).padStart(2, '0'), 44, 136);
+  ctx.fillStyle = active ? '#ffffff' : COLORS.text;
+  ctx.font = `500 52px ${FONT_BODY}`;
+  ctx.fillText(TAB_LABELS[i], 44, 228, 350);
+  return canvas;
+}
 
 const smooth = (a: number, b: number, x: number) => {
   const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1);
@@ -30,6 +80,9 @@ export class Book {
   private readonly tilt = new THREE.Vector2();
   private readonly tiltTarget = new THREE.Vector2();
   private aspect = 1;
+  /** One page at a time (narrow, portrait screens). */
+  pageMode = false;
+  private pageFit = 1;
 
   // camera poses, adjusted to the viewport in resize()
   private readonly closed: CameraPose = { pos: new THREE.Vector3(), target: new THREE.Vector3() };
@@ -39,6 +92,8 @@ export class Book {
 
   /** 0 → 1 while diving into the last spread; drives the white fade. */
   diveAmount = 0;
+  private readonly tabs: { group: THREE.Group; materials: THREE.MeshStandardMaterial[]; maps: [THREE.Texture, THREE.Texture] }[] = [];
+  private activeTab = -1;
 
   constructor(images: Images, renderer: THREE.WebGLRenderer) {
     this.scene.background = null;
@@ -78,6 +133,38 @@ export class Book {
       this.leaves[leaf].attach(piece, side, x);
       this.pieces.push(piece);
     }
+
+    // index tabs on the free edge of each leaf: they sit on the right of the
+    // pages still to come and move to the left once their leaf has turned
+    this.leaves.forEach((leaf, i) => {
+      if (i >= TAB_LABELS.length) return;
+      const tex = (c: HTMLCanvasElement) => {
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        return t;
+      };
+      const maps: [THREE.Texture, THREE.Texture] = [tex(tabCanvas(i, false)), tex(tabCanvas(i, true))];
+      const geo = new THREE.PlaneGeometry(TAB_W, TAB_H);
+      geo.rotateX(-Math.PI / 2);
+      geo.translate(TAB_W / 2, 0, 0);
+      // the back reads correctly once the leaf has turned over
+      const backGeo = geo.clone();
+      const uv = backGeo.getAttribute('uv') as THREE.BufferAttribute;
+      for (let k = 0; k < uv.count; k++) uv.setX(k, 1 - uv.getX(k));
+      const front = new THREE.MeshStandardMaterial({ map: maps[0], roughness: 0.9, side: THREE.FrontSide });
+      const back = new THREE.MeshStandardMaterial({ map: maps[0], roughness: 0.9, side: THREE.BackSide });
+      const group = new THREE.Group();
+      const fm = new THREE.Mesh(geo, front);
+      const bm = new THREE.Mesh(backGeo, back);
+      fm.userData.tab = i;
+      bm.userData.tab = i;
+      group.add(fm, bm);
+      group.position.z = -PAGE_H / 2 + 0.13 + i * TAB_GAP;
+      group.renderOrder = 1;
+      leaf.attachToEdge(group);
+      this.tabs.push({ group, materials: [front, back], maps });
+    });
     this.scene.add(this.book);
   }
 
@@ -88,10 +175,17 @@ export class Book {
     this.camera.updateProjectionMatrix();
     // pull back on narrow screens just enough for the open spread (2 units + margin) to fit
     const halfH = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
-    const fit = Math.max(1, 1.12 / (halfH * this.aspect) / 3.2);
+    // the open spread plus the index tabs sticking out on both sides
+    const fit = Math.max(1, (1.12 + TAB_W) / (halfH * this.aspect) / 3.2);
+    // page mode: frame a single page (1 unit + margin) instead of the spread
+    this.pageMode = this.aspect < 0.8;
+    this.pageFit = Math.max(0.62, 0.6 / (halfH * this.aspect) / 3.2);
+    // in page mode the tabs would be off screen; the HTML tab strip takes over
+    for (const t of this.tabs) t.group.visible = !this.pageMode;
 
+    const closedFit = this.pageMode ? this.pageFit : fit;
     this.closed.target.set(0.5, 0, 0.02);
-    this.closed.pos.set(0.5, 2.25 * fit, 2.3 * fit);
+    this.closed.pos.set(0.5, 2.25 * closedFit, 2.3 * closedFit);
     this.open.target.set(0, 0.08, 0.08);
     this.open.pos.set(0, 2.35 * fit, 2.15 * fit);
     this.dive.target.set(0.5, 0.18, 0.05);
@@ -103,8 +197,8 @@ export class Book {
     this.tiltTarget.set(nx, ny);
   }
 
-  /** `p` is the scroll position in steps, 0 … STEPS. */
-  update(p: number, dt: number, allowTilt: boolean) {
+  /** `p` is the book position in steps, 0 … STEPS; `focus` picks the page in page mode. */
+  update(p: number, dt: number, allowTilt: boolean, focus = 0) {
     // turn the leaves
     const angles: number[] = [];
     for (let i = 0; i < this.leaves.length; i++) {
@@ -135,8 +229,16 @@ export class Book {
     const openT = smooth(0, 1, p);
     const diveT = smooth(STEPS - 1, STEPS, p);
     this.diveAmount = smooth(STEPS - 0.35, STEPS, p);
-    const pos = this.closed.pos.clone().lerp(this.open.pos, openT).lerp(this.dive.pos, easeInOut(diveT));
-    this.lookAt.copy(this.closed.target).lerp(this.open.target, openT).lerp(this.dive.target, easeInOut(diveT));
+    let open = this.open;
+    if (this.pageMode) {
+      const x = focus * 0.5;
+      open = {
+        pos: new THREE.Vector3(x, 2.35 * this.pageFit, 2.15 * this.pageFit),
+        target: new THREE.Vector3(x, 0.08, 0.08),
+      };
+    }
+    const pos = this.closed.pos.clone().lerp(open.pos, openT).lerp(this.dive.pos, easeInOut(diveT));
+    this.lookAt.copy(this.closed.target).lerp(open.target, openT).lerp(this.dive.target, easeInOut(diveT));
     this.camera.position.copy(pos);
     this.camera.lookAt(this.lookAt);
 
@@ -145,6 +247,23 @@ export class Book {
     this.tilt.lerp(allowTilt ? this.tiltTarget : new THREE.Vector2(), k);
     this.book.rotation.y = (1 - openT) * -0.14 + this.tilt.x * 0.05;
     this.book.rotation.x = -this.tilt.y * 0.03;
+  }
+
+  /** Highlights the index tab of the spread in view. */
+  setActiveTab(i: number) {
+    if (i === this.activeTab) return;
+    this.activeTab = i;
+    this.tabs.forEach((t, k) => {
+      for (const m of t.materials) m.map = t.maps[k === i ? 1 : 0];
+    });
+  }
+
+  /** Index of the tab under the pointer, or −1. */
+  hitTab(): number {
+    if (this.pageMode) return -1;
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    const hit = this.raycaster.intersectObjects(this.tabs.map((t) => t.group), true)[0];
+    return hit ? (hit.object.userData.tab as number) : -1;
   }
 
   /** The piece under the pointer, if it belongs to a spread that is open. */

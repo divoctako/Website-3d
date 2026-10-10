@@ -1,7 +1,7 @@
 # งานที่เหลือ (handoff)
 
 สถานะ ณ commit `314eb87` บน branch `claude/sealion7-spec` (เป็น default branch ของ repo ด้วย)
-- เสร็จแล้ว: M0 setup, M1 prototype หนังสือ, M2 หนังสือครบ 6 spread + tabs + section เนื้อหาแบบ HTML, M3 ฉาก 3D ของ Performance / Exterior / Interior, M4 ADAS / Specs / Colors / Contact
+- เสร็จแล้ว: M0 setup, M1 prototype หนังสือ, M2 หนังสือครบ 6 spread + tabs + section เนื้อหาแบบ HTML, M3 ฉาก 3D ของ Performance / Exterior / Interior, M4 ADAS / Specs / Colors / Contact, M5 มือถือ / การเข้าถึง / ประสิทธิภาพ
 - เว็บจริง: https://divoctako.github.io/Website-3d/ ทุกครั้งที่ push ขึ้น `claude/sealion7-spec` workflow `.github/workflows/pages.yml` จะ build แล้ว deploy ขึ้น `gh-pages` ให้เอง
 - Spec เต็มอยู่ที่ [`SPEC.md`](SPEC.md) (§4 = เนื้อหาและ 3D ของแต่ละ section, §9 = milestones, §10 = คำถามค้าง)
 
@@ -36,6 +36,7 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
 | `src/gl/fx/PerformanceScene.ts` · `ExteriorScene.ts` · `InteriorScene.ts` | ฉาก 3D ของแต่ละ section |
 | `src/ui/fx.ts` | โหลดรูป, ผูก scroll กับฉาก, count-up, hotspot, ปุ่มจังหวะ, รายการ ADAS (`window.__fx`, `window.__lenis` ใช้ debug ในโหมด dev) |
 | `src/gl/fx/AdasScene.ts` | ฉากถนน ADAS (shader เลน + โซนเซนเซอร์ 11 ระบบ) |
+| `src/ui/staticBook.ts` | หนังสือแบบภาพนิ่ง (ไม่มี WebGL หรือ reduced motion) วาด spread แบนจาก canvas ของหน้าเดียวกับหนังสือ 3D |
 | `src/content/specTable.ts` | ตารางสเปกเต็มจาก brochure หน้า 4 (11 หมวด) + เชิงอรรถ ①–⑤ |
 | `src/ui/colors.ts` · `src/ui/contact.ts` · `src/ui/pin.ts` | Colors และ Contact (HTML/CSS ไม่ใช้ WebGL) และ helper ของ section ที่ pin |
 | `pic/` · `scripts/process-pic.py` | รูปที่ generate เพิ่ม (prompt ใน `pic/PROMPTS.md`) และสคริปต์ไดคัท/แปลงเป็น webp ลง `public/assets/` |
@@ -67,13 +68,18 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
   - บนมือถือ รถคันหน้าของ ICC / AEB อยู่นอกจอ เพราะจอแคบ
   - Specs ยังไม่มี blueprint เส้นวาดตาม scroll และการเลือกเปรียบเทียบทีละ 2 รุ่นบนมือถือ (SPEC §4 [5])
 
-## M5 — มือถือ, การเข้าถึง, ประสิทธิภาพ
+## M5 — มือถือ, การเข้าถึง, ประสิทธิภาพ ✅
 
-- [ ] หนังสือบนมือถือ: แสดงทีละหน้าแทนทั้ง spread (ตอนนี้ย่อทั้ง spread ให้พอดีจอ ซึ่งยังเล็ก)
-- [ ] `prefers-reduced-motion`: ไม่ pin / ไม่ scrub แสดงภาพนิ่ง
-- [ ] Fallback เมื่อไม่มี WebGL: ใช้ภาพนิ่งของแต่ละ spread
-- [ ] ลด bundle (ตอนนี้ JS ~190 KB gzip, three.js ตัวเดียวก็ใหญ่แล้ว), แปลง texture เป็น KTX2, lazy-load รูปราย section
-- [ ] ทำ tab ของหนังสือให้เป็นแถบ 3D ติดกับตัวหนังสือ (ตอนนี้เป็นปุ่ม HTML)
+- [x] **หนังสือบนมือถือ** (จอแนวตั้ง กว้าง/สูง < 0.8): กล้องดูทีละหน้า scroll ทีละ 13 step (หน้าซ้าย → หน้าขวา → พลิก) ดู `bookState()` ใน `Book.ts` ความละเอียดหน้าบนมือถือเพิ่มจาก 0.7 เป็น 0.85
+- [x] **แถบ tab 3D** ติดขอบกระดาษแต่ละแผ่น (00 ปก … 06 Colors) พลิกไปกับหน้า คลิกแล้วไปที่ spread นั้น tab ที่ active เป็นสีกรมท่า บนจอแนวนอน tab HTML ซ่อนไว้ แต่ยังกด Tab บนคีย์บอร์ดถึงได้ ส่วนในโหมดดูทีละหน้ายังใช้แถบ tab HTML
+- [x] **`prefers-reduced-motion`:** หนังสือเป็นภาพนิ่ง ทุก section ไม่ pin (สูง 1 จอ) ฉาก 3D ไม่ scrub แต่เปลี่ยนตามการคลิกรายการ/hotspot/ชิป ADAS แทน รถใน Performance จอดนิ่งกลางจอ
+- [x] **ไม่มี WebGL:** หนังสือวาด spread แบนด้วย canvas 2D (หน้า + ชิ้น pop-up ตั้งบนเส้นพับ) และสลับด้วย tab ส่วน Performance / Exterior / Interior / ADAS ใช้ภาพนิ่ง (CSS background) รายการ Exterior และชิป ADAS ยังกดได้
+- [x] ฉากของ section แยกเป็น chunk `fx-*.js` (~10 KB gzip) โหลดหลังหนังสือ และไม่โหลดเลยถ้าไม่มี WebGL ส่วน DPR ของทั้งสอง canvas ตอนเครื่องช้าจะไม่ลดต่ำกว่า 1.5 บนจอ ≥ 2×
+- ทดสอบโหมดสำรองในโหมด dev ได้ด้วย `?reduced` และ `?nowebgl`
+- ไม่ได้ทำ:
+  - **KTX2:** ต้องโหลดตัวถอดรหัส Basis (wasm ราว 200 KB) ซึ่งใหญ่กว่ารูป webp ที่ใช้อยู่รวมกัน หน้ากระดาษก็วาดด้วย canvas ตอนรันอยู่แล้ว เลยไม่คุ้ม
+  - **bundle หลัก** ยัง ~200 KB gzip เพราะ three.js (~150 KB) ต้องใช้ตั้งแต่จอแรก (หนังสือ) ทางที่ลดได้ต่อคือแยกโค้ดหนังสือเป็น chunk แล้วโหลดคู่กับรูป ซึ่งได้ไม่มาก
+  - รูปของ ADAS/Interior ยังโหลดพร้อมกันตอนเริ่มฉาก ยังไม่ได้แยกโหลดราย section
 
 ## M6 — QA และ launch
 

@@ -199,7 +199,9 @@ export class PerformanceScene implements FxView {
     // 0 when the box enters at the bottom, 1 when it is centred, 2 when it leaves at the top
     const vh = viewport.height;
     const target = (vh - rect.top) / ((vh + rect.height) / 2);
-    if (this.progress < 0 || this.reducedMotion) this.progress = target;
+    // reduced motion: the car simply stands in the middle
+    if (this.reducedMotion) this.progress = 1;
+    else if (this.progress < 0) this.progress = target;
     else this.progress = THREE.MathUtils.damp(this.progress, target, 6, dt);
     const p = this.progress;
     const e = easeOutCubic(p);

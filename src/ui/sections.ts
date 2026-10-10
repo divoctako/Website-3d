@@ -123,3 +123,36 @@ function renderSpecTable() {
     if (toggle.checked) host.querySelectorAll<HTMLDetailsElement>('.spec-group:not(.has-no-diff)').forEach((d) => (d.open = true));
   });
 }
+
+/** Marks the exterior feature in focus. */
+export function setExteriorFeature(i: number) {
+  document.querySelectorAll('#exterior .features li').forEach((li, k) => li.classList.toggle('is-active', k === i));
+}
+
+/** Highlights one ADAS chip and shows its name and description. */
+export function showAdasSystem(i: number) {
+  const items = document.querySelectorAll<HTMLButtonElement>('[data-adas] .adas__item');
+  items.forEach((b, k) => {
+    b.classList.toggle('is-active', k === i);
+    if (k === i) b.setAttribute('aria-current', 'true');
+    else b.removeAttribute('aria-current');
+  });
+  const detail = document.querySelector('[data-adas-detail]');
+  if (!detail) return;
+  const sys = ADAS_SYSTEMS[i];
+  detail.replaceChildren(el('strong', '', sys.code));
+  if (sys.name) detail.append(el('span', 'adas__name', sys.name));
+  detail.append(el('p', '', sys.th));
+}
+
+/**
+ * Without WebGL the section scenes never start: give the exterior list and the
+ * ADAS chips their click behaviour on their own.
+ */
+export function startStaticSections() {
+  const items = document.querySelectorAll('#exterior .features li');
+  items.forEach((li, i) => li.addEventListener('click', () => setExteriorFeature(i)));
+  setExteriorFeature(0);
+  document.querySelectorAll('[data-adas] .adas__item').forEach((b, i) => b.addEventListener('click', () => showAdasSystem(i)));
+  showAdasSystem(0);
+}
