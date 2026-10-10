@@ -370,7 +370,10 @@ export class AdasScene implements FxView {
     this.lead.material.opacity = this.leadShow;
     this.lead.position.set(this.leadPos.x, 0.85, this.leadPos.z);
     this.lead.quaternion.copy(this.camera.quaternion);
-    // nearer one draws on top
-    this.lead.renderOrder = this.leadPos.z > 0 ? 5 : 3;
+    // the cut-outs skip the depth test, so draw whichever is nearer the camera last
+    // (a car in the next lane alongside or behind is still farther away than ours)
+    const leadDist = this.lead.position.distanceToSquared(this.camera.position);
+    const carDist = this.car.position.distanceToSquared(this.camera.position);
+    this.lead.renderOrder = leadDist < carDist ? 5 : 3;
   }
 }

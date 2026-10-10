@@ -170,6 +170,18 @@ function boot3D(images: Images) {
   resize();
   window.addEventListener('resize', resize);
 
+  // our own scroll direction: ScrollTrigger's can be stale after a jump or a restored scroll
+  let direction = 1;
+  let lastY = window.scrollY;
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (window.scrollY !== lastY) direction = window.scrollY > lastY ? 1 : -1;
+      lastY = window.scrollY;
+    },
+    { passive: true },
+  );
+
   // scroll → book position (in steps), snapping to whole steps
   let target = 0;
   let current = 0;
@@ -181,7 +193,20 @@ function boot3D(images: Images) {
       target = self.progress * stepCount();
     },
     snap: {
-      snapTo: (v: number) => Math.round(v * stepCount()) / stepCount(),
+      snapTo: (v: number) => {
+        const n = stepCount();
+        const q = v * n;
+        // a fling can stop well past the book: leave the scroll alone then
+        const end = bookEl.offsetTop + bookEl.offsetHeight - window.innerHeight;
+        if (window.scrollY > end + 1) return v;
+        // the last step is the dive into the page (all white): never park on it
+        if (q > n - 1) {
+          if (direction < 0) return (n - 1) / n; // coming back up: the last spread
+          scrollToSection('performance'); // going down: carry on into the content
+          return v;
+        }
+        return Math.round(q) / n;
+      },
       duration: { min: 0.35, max: 0.9 },
       delay: 0.12,
       ease: 'power2.inOut',
@@ -207,7 +232,12 @@ function boot3D(images: Images) {
 
   // only render while the book is on screen
   let visible = true;
-  new IntersectionObserver(([entry]) => (visible = entry.isIntersecting)).observe(bookEl);
+  new IntersectionObserver(([entry]) => {
+    // coming back into view (e.g. scrolling up from the content, or after a nav jump):
+    // start from where the scroll is, not from where the book was left
+    if (entry.isIntersecting && !visible) current = target;
+    visible = entry.isIntersecting;
+  }).observe(bookEl);
 
   let activeTab = -1;
   let slowFor = 0;

@@ -47,7 +47,6 @@ opaque interior-dash   i-003-050.jpg
 opaque interior-wide   i-003-051.jpg
 opaque interior-shifter i-003-052.jpg
 opaque interior-audio  i-003-053.jpg
-opaque interior-cabin  i-003-054.jpg
 opaque interior-roof   i-003-055.jpg
 opaque interior-blue   i-003-056.jpg
 opaque interior-dms    i-003-057.jpg

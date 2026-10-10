@@ -84,6 +84,5 @@ for c, im in zip(ids, ims):
 # views with a glow halo: hard-ish matte, 1px erode
 cutout('car-rear', 'car-rear', 110, 200, True, 1400)
 cutout('car-rear-34-top', 'car-rear-34-top', 110, 200, True, 1400)
-cutout('car-top', 'car-top', 110, 200, True, 760)
 cutout('lead-car-rear', 'lead-car-rear', 60, 160, True, 1200)
 save(Image.open(os.path.join(src, 'contact-mist.png')).convert('RGB'), 'contact-mist', 2400, 82)
