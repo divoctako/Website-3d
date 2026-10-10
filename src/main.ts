@@ -9,6 +9,7 @@ import { IMAGE_SOURCES, type Images } from './gl/book/spreads';
 import { loadImage, setPageResolution } from './gl/textures';
 import { startColors } from './ui/colors';
 import { startContact } from './ui/contact';
+import { startCta } from './ui/cta';
 import { renderSections, startStaticSections } from './ui/sections';
 import { startStaticBook } from './ui/staticBook';
 
@@ -68,6 +69,7 @@ if (import.meta.env.DEV) Object.assign(window, { __lenis: lenis });
 // plain-DOM sections: no WebGL needed, so they don't wait for the book
 startColors(reducedMotion);
 startContact(reducedMotion);
+startCta();
 
 function scrollToStep(step: number) {
   const top = bookEl.offsetTop;

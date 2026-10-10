@@ -20,7 +20,9 @@
   <body>
     <canvas class="fx-canvas" data-fx-canvas aria-hidden="true"></canvas>
     <header class="nav" data-nav>
-      <a class="nav__logo" href="#top" aria-label="BYD SEALION 7">BYD <span>SEALION 7</span></a>
+      <a class="nav__logo" href="#top">
+        <img src="./assets/pir-logo.webp" alt="BYD PI-R Motor (พายอาร์ มอเตอร์)" width="186" height="32" />
+      </a>
       <nav class="nav__links" aria-label="Sections">
         <a href="#performance">Performance</a>
         <a href="#exterior">Exterior</a>
@@ -38,6 +40,7 @@
       <section class="book" id="book" aria-label="BYD SEALION 7 pop-up book">
         <div class="book__stage">
           <canvas class="book__canvas" data-book-canvas aria-hidden="true"></canvas>
+          <img class="book__logo" src="./assets/pir-logo.webp" alt="BYD PI-R Motor (พายอาร์ มอเตอร์)" width="186" height="32" />
           <div class="book__flat" data-book-flat></div>
 
           <ol class="book__tabs" aria-label="สารบัญ">
@@ -217,14 +220,9 @@
         <div class="section contact__info">
           <div class="container">
             <p class="eyebrow">Contact</p>
-            <h2 class="title">Life in Motion</h2>
-            <address>
-              <strong>REVER AUTOMOTIVE CO., LTD. (HEAD OFFICE)</strong><br />
-              865 Siam at Siam Hotel Bldg. 9th Fl., Rama 1 Road, Wangmai, Pathumwan, Bangkok 10330<br />
-              โทร <a href="tel:027668880">02 766 8880</a> · อีเมล
-              <a href="mailto:contact@reverautomotive.com">contact@reverautomotive.com</a><br />
-              <a href="https://reverautomotive.com" rel="noopener">reverautomotive.com</a> · Facebook: BYD REVER THAILAND
-            </address>
+            <h2 class="title">BYD PI-R Motor</h2>
+            <p class="lead">พายอาร์ มอเตอร์ · ขอนแก่น · สกลนคร</p>
+            <div class="branches" data-branches></div>
             <p class="note">
               สีที่แสดงเป็นเพียงแนวทางเท่านั้นและอาจแตกต่างจากสีจริง · ระบบช่วยขับขี่ไม่สามารถทดแทนความรับผิดชอบของผู้ขับขี่ต่อยานพาหนะได้ ·
               BYD ขอสงวนสิทธิ์ในการเปลี่ยนแปลงข้อมูลคุณสมบัติของรถยนต์และอุปกรณ์มาตรฐานจากรายละเอียดในเอกสารนี้
@@ -233,6 +231,15 @@
         </div>
       </footer>
     </main>
+
+    <button class="cta-fab" type="button" data-cta-fab aria-haspopup="dialog">ติดต่อเรา</button>
+    <dialog class="cta-sheet" data-cta-sheet aria-labelledby="cta-sheet-title">
+      <div class="cta-sheet__head">
+        <p class="cta-sheet__title" id="cta-sheet-title">ติดต่อ BYD PI-R Motor</p>
+        <button class="cta-sheet__close" type="button" data-cta-close aria-label="ปิด">✕</button>
+      </div>
+      <div data-cta-list></div>
+    </dialog>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
