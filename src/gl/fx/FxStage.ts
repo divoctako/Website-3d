@@ -143,3 +143,63 @@ export class FxStage {
     return visible.length;
   }
 }
+
+/**
+ * One scene in its own canvas inside its box. The canvas scrolls with the page,
+ * so on touch scrolling (which the browser moves off the main thread) the
+ * picture stays glued to the layout instead of trailing the fixed FxStage
+ * canvas by a frame, which reads as jitter on phones. Used for boxes that
+ * scroll freely; pinned boxes hold still on screen and stay on the FxStage.
+ */
+export class FxInline {
+  readonly canvas = document.createElement('canvas');
+  readonly renderer: THREE.WebGLRenderer;
+  private view?: FxView;
+  private width = 0;
+  private height = 0;
+  private dpr = Math.min(window.devicePixelRatio, 2);
+  private slowFor = 0;
+
+  constructor(readonly el: HTMLElement) {
+    this.canvas.className = 'fx-inline';
+    el.append(this.canvas);
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.NoToneMapping;
+    this.renderer.setClearColor(0x000000, 0);
+  }
+
+  set(view: FxView) {
+    this.view = view;
+    this.width = 0;
+  }
+
+  /** Renders the scene while its box is on screen. */
+  render(dt: number, time: number) {
+    const view = this.view;
+    if (!view) return;
+    const rect = this.el.getBoundingClientRect();
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
+    if (rect.bottom <= 0 || rect.top >= viewport.height || rect.width <= 0) {
+      this.slowFor = 0;
+      return;
+    }
+    if (rect.width !== this.width || rect.height !== this.height) {
+      this.width = rect.width;
+      this.height = rect.height;
+      this.renderer.setPixelRatio(this.dpr);
+      this.renderer.setSize(this.width, this.height, false);
+      view.resize(this.width, this.height);
+    }
+    view.update(rect, viewport, dt, time);
+    this.renderer.render(view.scene, view.camera);
+
+    // drop resolution if frames are slow for a while
+    this.slowFor = dt > 1 / 45 ? this.slowFor + dt : 0;
+    if (this.slowFor > 2 && this.dpr > 1) {
+      this.dpr = Math.max(1, this.dpr - 0.5);
+      this.slowFor = 0;
+      this.width = 0;
+    }
+  }
+}

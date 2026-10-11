@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import type Lenis from 'lenis';
 import { AdasScene, ADAS_COUNT } from '../gl/fx/AdasScene';
 import { ExteriorScene, EXTERIOR_FEATURES } from '../gl/fx/ExteriorScene';
-import { FxStage } from '../gl/fx/FxStage';
+import { FxInline, FxStage } from '../gl/fx/FxStage';
 import { InteriorScene, SHADES } from '../gl/fx/InteriorScene';
 import { PerformanceScene } from '../gl/fx/PerformanceScene';
 import { loadImage } from '../gl/textures';
@@ -86,8 +86,10 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
   const stage = new FxStage(canvas);
   const { renderer } = stage;
 
-  /* performance */
-  stage.add(new PerformanceScene($('[data-fx="performance"]'), images, renderer, reducedMotion));
+  /* performance: the box scrolls freely, so it gets its own canvas (see FxInline) */
+  const perfEl = $<HTMLElement>('[data-fx="performance"]');
+  const perf = new FxInline(perfEl);
+  perf.set(new PerformanceScene(perfEl, images, perf.renderer, reducedMotion));
 
   /* exterior */
   const extPin = $<HTMLElement>('[data-ext-pin]');
@@ -162,6 +164,7 @@ export async function startFx(lenis: Lenis, reducedMotion: boolean) {
     }
     // the cards take over the screen in the second half
     mood.classList.toggle('is-hidden', interior.target > 0.42);
+    perf.render(dt, now / 1000);
     stage.render(dt, now / 1000);
   });
 }
