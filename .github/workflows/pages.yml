@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
+# The live site is now the combined 8-model site (hub at /, this page at /sealion-7/),
+# built and published from the parent folder with `node site/build.mjs && node site/deploy.mjs`.
+# This workflow only deploys SEALION 7 alone, so it no longer runs on push — running it by hand
+# would replace the combined site.
 on:
-  push:
-    branches: [claude/sealion7-spec]
   workflow_dispatch:
 
 permissions:

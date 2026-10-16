@@ -84,14 +84,18 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
 ## M6 — QA และ launch
 
 - [ ] ทดสอบบนมือถือจริง: iPhone Safari และ Android Chrome (ที่ผ่านมาทดสอบแค่บน Chromium จำลอง)
-- [ ] ตรวจทุกตัวเลขเทียบ brochure
-- [ ] SEO: JSON-LD `Product`, รูป OG
+- [x] **ตรวจทุกตัวเลขเทียบ brochure** (render PDF หน้า 1–4 แล้วเทียบทีละจุด): ตัวเลข Performance 6 ตัว, ข้อความ Exterior / Interior, ADAS 11 ระบบ, ตารางสเปกหน้า 4 และสี/รุ่น ตรงทั้งหมด ยกเว้นจุดเดียวที่แก้ไปแล้วใน M4 (ที่เก็บของท้าย AWD Performance = 500 ลิตร)
+  - เหลือจุดเล็ก ๆ ยังไม่ได้แก้: ปกหนังสือ 3D พิมพ์ "REVER AUTOMOTIVE" แต่ brochure สะกด "RÊVER" (ชื่อเพจ Facebook "BYD REVER THAILAND" ไม่มี ê)
+  - ข้อมูลสาขา PI-R Motor (`src/content/branches.ts`) ไม่ได้มาจาก brochure ผู้ใช้ให้มาเอง
+- [x] **SEO:** canonical, Open Graph + Twitter card (URL เต็ม), รูป `public/og.jpg` 1200×630 ครอปจากรูปปก, JSON-LD (`Car` + `AutoDealer` 2 สาขา) สร้างตอน build จาก `src/content/jsonld.ts` ด้วย plugin ใน `vite.config.ts`
+  - ถ้าย้ายโดเมน ให้แก้ URL ใน `index.html` (canonical / og:url / og:image) และ `SITE_URL` ใน `jsonld.ts`
+  - ไม่มีราคาใน brochure จึงไม่มี `offers` ทำให้ Google ไม่แสดง rich result แบบมีราคา แต่ structured data ยังใช้ได้
 
 ## เรื่องที่ต้องตัดสินใจหรือขอข้อมูล (SPEC §10)
 
 1. **ขอรูปความละเอียดสูง** จาก BYD/Rever: รถไดคัท 6 สี (ใน PDF กว้างแค่ ~170px), รถด้านข้าง/หน้า/หลัง และรูป detail
-2. **ยืนยันชื่อสี:** ตอนนี้กำหนดรูปสีฟ้าอมเทา = Space Grey และรูปสีเทา = Shark Grey (`brochure.ts`, `extract-pdf-assets.sh`)
-3. **ยืนยันตาราง spec** แถวที่ช่องถูก merge: แบต 82.5 kWh ของ Premium + AWD Performance, ที่เก็บของท้าย 500/520 ลิตร, ล้อ 19/20 นิ้ว
+2. ~~ยืนยันชื่อสี~~ ยืนยันแล้วจากช่อง EXTERIOR COLOR ใน brochure หน้า 4: รถสีฟ้า = Space Grey, รถสีเทา = Shark Grey ตรงกับที่ใช้อยู่
+3. ~~ยืนยันตาราง spec แถวที่ merge~~ ตรวจกับภาพหน้า 4 แล้ว: แบต 82.5 (Premium + AWD Performance) / 91.3, ที่เก็บของท้าย 500 (Premium + AWD Performance) / 520, ล้อ 19 / 20 / 20
 4. **สิทธิ์ใช้แบรนด์:** repo และเว็บเป็น public แล้ว มีรูป โลโก้ และ PDF brochure ของ BYD อยู่ ต้องยืนยันว่าได้รับอนุญาต
 5. ราคาไม่มีใน brochure จึงยังไม่แสดงราคาในเว็บ
 
@@ -99,6 +103,7 @@ npm run assets         # ดึงรูปจาก PDF ใหม่ (ต้อ
 
 - ทำงานบน `claude/sealion7-spec` push แล้ว Pages จะอัปเดตเอง
 - ก่อน push ให้รัน `npm run build` (มี typecheck ในตัว)
-- ตรวจหน้าตาด้วย Playwright + Chromium: ต้อง scroll ไปที่ step แล้วรอให้ค่า damping นิ่ง (~3–4 วินาที) ก่อนจับภาพ
+- ตรวจหน้าตาด้วย Playwright + Chromium: ต้อง scroll ไปที่ step แล้วรอให้ค่า damping นิ่ง (~3–4 วินาที) ก่อนจับภาพ ในโหมด dev ใช้ `__lenis.scrollTo(y, { immediate: true })` แทน `window.scrollTo` (Lenis จะดึงกลับ)
+- dev server รับพอร์ตจาก env `PORT` (ค่าเริ่มต้น 5173)
 - ห้ามรัน `pkill -f vite` ใน command เดียวกับคำสั่งอื่น เพราะจะ kill shell ตัวเองไปด้วย
 - ข้อความทุกอย่างต้องมาจาก brochure เท่านั้น ห้ามเติมตัวเลขหรือชื่อระบบที่ brochure ไม่ได้พิมพ์
