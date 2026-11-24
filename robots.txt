@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://divoctako.github.io/Website-3d/sitemap.xml

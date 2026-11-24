@@ -1,0 +1,86 @@
+/* The cover and first station share the pinned viewport so the page turns directly onto the rail. */
+html{scroll-padding-top:0;scroll-behavior:auto}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#book{height:1000svh;background:#f4ebe0}
+.book-stage{position:sticky;top:0;height:100svh;overflow:hidden;perspective:1700px;background:#f4e8d8 url(assets/paper-grain.webp)}
+.inside{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;color:#39232a}
+.factory-head{background:#fffaf3e8;display:flex;align-items:center;justify-content:space-between;padding:10px max(5vw,16px);border-bottom:1px solid #997d67}
+.factory-head img{width:126px;display:block}.factory-head label{color:#590734;font-weight:700}.factory-head select{font:inherit;color:inherit;background:#fffaf2;border:1px solid #b6978e;border-radius:4px;padding:7px;max-width:44vw}
+.assembly{position:relative;overflow:hidden;background:linear-gradient(#fff8,#fff8),url(assets/blueprint.webp) center 55%/cover}
+.beam{position:absolute;top:5%;width:100%;height:clamp(26px,5vh,48px);background:#433e39 url(assets/steel.webp) repeat-x left center/auto 100%;border-block:3px solid #6c655e;box-shadow:0 3px 6px #382b2466}
+.carriage{position:absolute;inset:5% 0 0;display:flex;align-items:center;flex-direction:column;pointer-events:none;will-change:transform}
+.truck{width:clamp(95px,15vw,176px);height:clamp(22px,4vh,40px);position:relative;flex:none;z-index:2}
+.truck:before,.truck:after{content:"";position:absolute;top:0;height:80%;aspect-ratio:1;border-radius:50%;background:repeating-conic-gradient(from var(--wheel,0deg),#756759 0deg 12deg,#3d3835 15deg 55deg);border:3px ridge #aea08b;box-shadow:0 2px 2px #332b22}.truck:before{left:5%}.truck:after{right:5%}
+.axle{position:absolute;inset:45% 0 -12%;background:linear-gradient(#9e9180,#5b554f,#938774);border:2px solid #4a433a;z-index:2;box-shadow:1px 2px 2px #3a2d2477}
+.sling{width:clamp(80px,12vw,145px);height:clamp(22px,5.3vh,65px);flex:none;display:flex;justify-content:space-between;z-index:1}.sling i{width:6px;height:100%;background:linear-gradient(90deg,#564e48,#e0d2bd,#6f6052);position:relative}.sling i:after{content:"";position:absolute;bottom:-11px;left:-7px;width:20px;height:16px;border:2px ridge #ad9981;background:linear-gradient(#564539,#cebea3,#635246);border-radius:3px}
+.carriage img{width:90%;height:calc(100% - clamp(22px,4vh,40px) - clamp(22px,5.3vh,65px) - 12px);object-fit:contain;object-position:center top;filter:drop-shadow(3px 8px 4px #3c30284d);transform-origin:50% 0}
+.station-foot{position:relative;width:min(660px,94%);margin:auto;padding:1px 0 max(6px,env(safe-area-inset-bottom));text-align:center}
+.station-nav,.ticket-buttons{display:flex;align-items:center;justify-content:center;gap:14px}.station-nav{font-weight:700;letter-spacing:.04em}.station-nav button{width:44px;height:44px;border:0;background:transparent;color:#590734;font:32px Georgia}.station-nav button:disabled{opacity:.25}
+#ticket{transform-origin:center top}.ticket-paper{position:relative;background:#70253b url(assets/ink.webp);background-blend-mode:multiply;color:#fff7e9;padding:12px 9%;text-align:left;box-shadow:1px 4px 7px #32241b33;border-radius:3px 8px 2px 5px;transform:rotate(-.7deg)}
+.ticket-paper:after{content:"";position:absolute;right:5%;inset-block:0;border-left:2px dashed #ffebc5a8}.ticket-paper h2{font:800 clamp(22px,4.6vh,44px)/1.1 Arial,sans-serif}.ticket-paper p{font-size:clamp(18px,3.5vh,32px);font-weight:700}.ticket-paper small{font-size:.8rem}.ticket-buttons{padding:10px 0 2px}.ticket-buttons .text-link{background:none;border:none;font:inherit;cursor:pointer;text-decoration:underline}.index-link{display:inline-block;color:#590734;padding:6px;text-underline-offset:3px}
+.cover{position:absolute;inset:0;transform-origin:left center;backface-visibility:hidden;background:#e5d9c8 url(assets/paper-grain.webp);z-index:3;box-shadow:6px 0 20px #35202548}
+#open-book{position:relative;width:100%;height:100%;display:grid;place-items:center;border:0;background:none;padding:0;color:#6d142c}.cover-mobile{height:100%;width:100%;object-fit:contain}.cover-desktop{display:none}
+.catalog{
+  background-color:#fff;
+  background-image:linear-gradient(to bottom,#fff 0,rgba(255,255,255,.84) clamp(48px,8vw,96px),rgba(255,255,255,.6) clamp(150px,22vw,280px)),url(assets/paper-grain.webp);
+}.model-card{border-radius:5px;background:#fffbf5}.card-content{border-top:1px dashed #baa79d}
+@media(min-aspect-ratio:1/1){.cover-mobile{display:none}.cover-desktop{width:min(1160px,95%);height:90%;position:relative;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 3fr 1fr;align-items:center;text-align:left;padding:3% 6% 3% 8%;background:#fff1db url(assets/paper-grain.webp);border-left:clamp(18px,3vw,42px) solid #6c1a31;border-radius:5px 32px 32px 5px;box-shadow:3px 3px #c7b99f,6px 6px #e5d8c0,12px 18px 28px #4e312a44}.cover-brand{grid-column:1/-1;font:bold clamp(19px,2.4vw,38px) Arial;letter-spacing:.13em}.cover-title{font-size:clamp(36px,4.3vw,68px);font-weight:700;line-height:1.3;letter-spacing:-.05em}.cover-title b{font:900 clamp(76px,10vw,150px)/1 Arial}.cover-desktop > img{width:105%;transform:rotate(-3deg);box-shadow:2px 5px 7px #39252b30}.cover-prompt{grid-column:1/-1;text-align:center;font-weight:600}}
+@media(max-height:560px){.station-foot{width:min(850px,96%)}#ticket{display:flex;align-items:center;justify-content:center;gap:12px}.ticket-paper{padding:5px 28px}.ticket-paper h2{font-size:18px}.station-nav button{height:32px}.ticket-buttons{padding:0}.index-link{padding:1px}}
+@media(prefers-reduced-motion:reduce){#book{height:100svh}.book-stage{position:relative}.inside{display:none}.cover{transform:none!important}}
+
+.cover-brand{display:flex;align-items:center;gap:.7em;letter-spacing:.03em}
+.cover-brand img{width:clamp(120px,12vw,185px);height:auto;padding-left:.7em;border-left:1px solid #966574}
+.cover-title{font-size:clamp(29px,3.65vw,61px)}
+@media(max-aspect-ratio:1/1){
+ .cover-desktop{display:grid;align-items:center;justify-items:center;grid-template-rows:1fr 1.4fr 2fr .8fr;width:min(100%,64svh);height:96%;padding:3svh 5%;border-left:clamp(14px,5vw,29px) solid #721e34;border-radius:4px 22px 22px 4px;background:#f5eada url(assets/paper-grain.webp);box-shadow:3px 3px #c6b8a4,5px 5px #e6dbc8,8px 12px 20px #50382540}
+ .cover-brand{font:700 clamp(20px,5vw,30px) Arial,sans-serif}
+ .cover-title{font-size:clamp(24px,7.4vw,45px);font-weight:700;line-height:1.2}
+ .cover-title b{font:900 clamp(58px,20vw,110px)/1 Arial,sans-serif}
+ .cover-desktop > img{width:100%;max-height:33svh;object-fit:contain;transform:rotate(-2deg)}
+ .cover-prompt{font-weight:600}
+}
+
+/* The steel rail and page block stay on the table while the cover turns. */
+.book-stage{--book-width:min(91vw,62svh);--book-height:min(89svh,132vw);display:grid;place-items:center;background:#fff}
+.cover,.inside{grid-area:1/1;width:var(--book-width);height:var(--book-height);position:relative;inset:auto;border-radius:5px 19px 19px 5px}
+.inside{overflow:hidden;background:#f7eee0 url(assets/paper-grain.webp);box-shadow:2px 1px #c7b49e,4px 2px #e8d8bd,6px 3px #cbbb9f,7px 10px 15px #40281036}
+.cover{background:transparent;box-shadow:none;transform-origin:1% 50%}
+.cover-desktop{position:relative;display:grid;width:100%;height:100%;grid-template-columns:minmax(0,1fr);grid-template-rows:1fr 1.6fr 2fr .7fr;align-items:center;justify-items:center;padding:3% 6% 2% 12%;text-align:center;border:0;border-radius:inherit;background:linear-gradient(115deg,#fff5,transparent 48%,#aa83531c),url(assets/paper-grain.webp);box-shadow:inset -2px 0 3px #8b62474f,inset 0 2px 2px #fff9,1px 1px 3px #795c4455}
+#open-book{border-radius:inherit}
+.cover-desktop::before{content:"";position:absolute;inset:0 auto 0 0;width:9%;border-radius:5px 0 0 5px;background:#67172b url(assets/linen-spine.webp) center/100% 100%;box-shadow:1px 0 2px #56372666}
+.cover-brand,.cover-prompt{grid-column:auto}
+.cover-brand{font:700 clamp(15px,min(4vw,3svh),26px)/1 Arial,sans-serif}.cover-brand img{width:clamp(90px,min(32vw,22svh),180px)}
+.cover-title{color:#761c29;font-size:clamp(21px,min(6.3vw,4.3svh),46px);font-weight:700;line-height:1.18;letter-spacing:-.045em;text-shadow:0 -1px 0 #c97974,0 1px 0 #55111e,0 2px 0 #4a0c17,1px 3px 2px #50302d59}
+.cover-title b{font:900 clamp(54px,min(18vw,12svh),125px)/1 Arial,sans-serif;letter-spacing:-.045em}
+@supports(background-clip:text){.cover-title,.cover-title b{background:linear-gradient(#761322d9,#661020db),url(assets/paper-grain.webp);background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 -1px .35px #d1887b) drop-shadow(0 1.4px .3px #580f1d) drop-shadow(1px 1.6px 1px #52302859)}}
+.cover-desktop > img{width:100%;height:100%;min-height:0;max-height:30svh;object-fit:contain;transform:rotate(-2deg);box-shadow:none}
+.cover-prompt{font-size:clamp(13px,2svh,18px)}
+@media(min-aspect-ratio:1/1){
+  .book-stage{grid-template:100% / 100%}
+  .book-stage .inside{
+    width:100%;height:100%;border-radius:0;
+    clip-path:inset(var(--page-inset-y,0px) var(--page-inset,0px) round var(--page-radius,0px));
+  }
+}
+@media(max-height:560px) and (min-aspect-ratio:1/1){.book-stage{--book-width:min(68vw,90svh);--book-height:92svh}.factory-head{padding-block:2px}.cover-title b{font-size:12svh}}
+
+/* Sewn into the page block, the bookmark stays put as the front cover turns. */
+.book-stage{--page-width:var(--book-width)}
+.book-stage::before{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  top:calc(50% + var(--book-height)/2 - 1px);
+  left:calc(50% - var(--page-width)*.35 + var(--page-inset,0px)*.7);
+  width:clamp(16px,3.4vw,28px);
+  height:clamp(15px,4.1svh,34px);
+  background:
+    linear-gradient(to bottom,#35040bf0,transparent 26%),
+    repeating-linear-gradient(0deg,transparent 0 2px,#42031455 2px 3px),
+    repeating-linear-gradient(90deg,#9b2334 0 1px,#761525 1px 2px,#b73948 2px 3px);
+  clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%);
+}
+@media(min-aspect-ratio:1/1) and (prefers-reduced-motion:no-preference){
+  .book-stage{--page-width:100%}
+}
+@media(prefers-reduced-motion:reduce){.book-stage::before{--page-inset:0px}}

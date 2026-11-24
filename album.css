@@ -1,0 +1,205 @@
+body {font-family:'IBM Plex Sans Thai',sans-serif;background:white}
+.album {--reserved:370px;--cover:min(81vw,480px,max(90px,calc((100svh - var(--reserved)) / 1.5)));--cover-height:calc(var(--cover)*1.5);--step:calc(var(--cover)*.44);background:#000;color:#fafafa;padding-bottom:36px}
+.album-head,.album-offer {width:min(1120px,90%);margin:auto;display:flex;align-items:center;justify-content:space-between}
+.album-head {height:clamp(48px,7svh,68px);border-bottom:1px solid #343136}
+.album-head img {width:100px;object-fit:contain}
+.album-head a {color:inherit;text-decoration:none;font-size:14px}
+.album h1 {text-align:center;font:600 clamp(32px,4vw,56px)/1.25 'IBM Plex Sans Thai',sans-serif;letter-spacing:-.04em;margin:clamp(6px,1svh,14px) 0 0}
+.album-scroll {position:relative;z-index:1;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;direction:ltr}
+.album-scroll::-webkit-scrollbar {display:none}
+.album-track {display:flex;align-items:center;width:max-content;padding:22px calc((100vw - var(--step))/2) calc(var(--cover-height)*.46 + 12px);box-sizing:border-box}
+.album-slot {--pose:translateX(-50%) perspective(900px) translateZ(calc(var(--depth) * var(--recession,1))) rotateY(var(--angle));width:var(--step);height:var(--cover-height);position:relative;scroll-snap-align:center}
+.album-cover {position:absolute;top:0;left:50%;width:var(--cover);height:100%;overflow:hidden;text-align:left;color:#241e28;appearance:none;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer;padding:0;transform:var(--pose);backface-visibility:hidden}
+.album-reflection {
+  pointer-events:none;
+  box-shadow:none;
+  transform:var(--pose) translateY(50%) scaleY(-.57) translateY(-50%);
+  mask-image:linear-gradient(to top,rgba(0,0,0,.86),rgba(0,0,0,.52) 32%,transparent 82%);
+}
+.album-cover img {display:block;width:100%;height:100%;object-fit:cover}
+/* side covers are dimmed with an overlay's opacity (cheap for the GPU) rather than an image filter */
+.album-cover::after {content:"";position:absolute;inset:0;background:#000;opacity:calc(1 - var(--cover-brightness,1));pointer-events:none}
+.album-nav {display:flex;align-items:center;justify-content:center;gap:18px;color:#fafafa}
+.album-nav button {width:42px;height:42px;background:#19181b;color:inherit;border:1px solid #625f65;border-radius:50%;font-size:19px;cursor:pointer}
+.album-nav button:disabled {opacity:.3}
+#album-count {font:12px Michroma,sans-serif}
+/* Price card: clear "liquid glass". Kept cheap for phones: one backdrop-filter, static gradients
+   and inset shadows only (no SVG filters, nothing animated on the card itself). */
+.album-offer {
+  position:relative;z-index:2;isolation:isolate;margin:calc(-1 * (var(--cover-height)*.46 + 23px)) auto 20px;
+  width:fit-content;max-width:92%;box-sizing:border-box;
+  gap:16px;padding:12px 18px;border-radius:22px;
+  /* rim: brighter where the light hits (top-left). Plain borders, no CSS masks, so every phone
+     browser draws it the same */
+  border:1px solid rgba(255,255,255,.16);border-top-color:rgba(255,255,255,.55);border-left-color:rgba(255,255,255,.34);
+  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.28);
+  /* no backdrop-filter support: smoked glass so the white text stays readable */
+  background:rgba(24,22,30,.66);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.5),
+    inset 0 -1px 0 rgba(255,255,255,.1),
+    inset 0 16px 22px -16px rgba(255,255,255,.3),
+    0 12px 32px -14px rgba(0,0,0,.6);
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .album-offer {
+    /* mostly clear: a faint top-left glare over what is behind, darkened just enough for white text */
+    background:
+      linear-gradient(155deg,rgba(255,255,255,.2),rgba(255,255,255,.05) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.07)),
+      rgba(16,14,22,.14);
+    -webkit-backdrop-filter:blur(16px) saturate(180%) brightness(.8);
+    backdrop-filter:blur(16px) saturate(180%) brightness(.8);
+  }
+}
+/* soft specular highlight across the top */
+.album-offer::after {
+  content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(120% 60% at 22% -12%,rgba(255,255,255,.26),transparent 58%);
+}
+#album-benefits {list-style:disc;margin:6px 0 0;padding-inline-start:1.1em;text-align:left;font-size:clamp(13px,1.3vw,16px);line-height:1.55;color:rgba(255,255,255,.92)}
+#album-benefits li::marker {color:rgba(255,255,255,.55)}
+.album-offer .offer-model {display:block;font-size:.85em;color:rgba(255,255,255,.78);text-decoration:none}
+.album-offer a.offer-model[href] span {color:#ffd2ea;font-weight:600}
+.album-offer a.offer-model[href]:hover span {text-decoration:underline;text-underline-offset:3px}
+.album-offer h2 {margin:4px 0;color:#fff;font:600 clamp(17px,2vw,25px)/1.35 'IBM Plex Sans Thai',sans-serif}
+.footer {background:#fff}
+@media(max-width:600px){.album{--reserved:290px}.album-head{height:46px}.album-offer{gap:6px;flex-direction:column;text-align:center;padding:8px 14px}.album h1{margin-top:8px}.album{padding-bottom:12px}}
+
+
+
+.lake-stage {position:relative;isolation:isolate}
+
+@media (orientation:landscape) and (max-height:520px) and (min-width:540px) {
+  .album {--reserved:180px;padding-bottom:8px}
+  .album-head {height:34px}
+  .album h1 {position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:21px;margin:0}
+  .album-track {padding-top:5px}
+  .album-offer {padding:4px 14px;margin-bottom:4px}
+  .album-offer h2 {font-size:16px;margin:1px 0}
+  #album-benefits {font-size:13px;line-height:1.35;margin-top:1px}
+  .album-nav button {width:34px;height:34px}
+}
+
+@media (min-width:960px) and (min-height:521px) {
+  .album {
+    position:relative;
+    --cover:min(44vw,590px,calc((100svh - 288px) / 1.5));
+    --recession:1.6;
+  }
+  .album h1 {
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    display:grid;place-items:center;height:clamp(48px,7svh,68px);
+    margin:0;font-size:clamp(28px,2.7vw,40px);
+  }
+  .album-track {padding-top:12px}
+}
+
+/* 100lvh (the tallest viewport, with the phone's URL bar hidden) so the white logo screen never
+   leaves a strip of the black page uncovered at the bottom while the browser bars move */
+.brand-intro[open] {
+  position:fixed;inset:0 0 auto;width:100%;height:100%;height:max(100%,100lvh);max-width:none;max-height:none;
+  margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:hidden;
+}
+.brand-intro::backdrop {background:transparent;backdrop-filter:none}
+.brand-intro svg {display:block;width:100%;height:100%}
+html {scrollbar-gutter:stable}
+html:has(.brand-intro[open]) {overflow:hidden}
+.album {min-height:100svh}
+html:has(.brand-intro[open]) .album-scroll {
+  transform:scale(var(--arrival-scale,.78));
+  transform-origin:50% calc(var(--cover-height)*.5 + 16px);
+}
+/* price card + arrows rise in while the circle opens (--intro-reveal 0→1, set by intro.js),
+   so the bottom of the screen is never an empty black field and nothing pops in at the end */
+html:has(.brand-intro[open]) :is(.album-offer,.album-nav) {
+  opacity:var(--intro-reveal,0)!important;
+  translate:0 calc((1 - var(--intro-reveal,0)) * 22px);
+  pointer-events:none;
+}
+
+.car-image {position:relative;isolation:isolate;container-type:inline-size}
+.catalog-model {
+  position:absolute;inset:0;display:flex;align-items:flex-end;
+  margin:0;padding:0 5.5% 6%;color:white;
+  background:linear-gradient(to bottom,transparent 68%,rgba(23,17,23,.62) 76%,#171117 79%);
+  font:400 clamp(14px,4.9cqw,25px)/1.25 Michroma,sans-serif;
+  letter-spacing:.015em;text-align:left;
+}
+
+@keyframes section-arrival {
+  from {opacity:.25;transform:translateY(22px)}
+  to {opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion:no-preference) {
+  .scroll-arrived {animation:section-arrival 440ms cubic-bezier(.2,.75,.25,1) backwards}
+  .scroll-arrived:focus-within {animation:none}
+  @media (min-width:901px) {
+    .model-card.scroll-arrived:nth-child(3n + 2) {animation-delay:55ms}
+    .model-card.scroll-arrived:nth-child(3n) {animation-delay:110ms}
+  }
+  @media (min-width:641px) and (max-width:900px) {
+    .model-card.scroll-arrived:nth-child(even) {animation-delay:55ms}
+  }
+  @media (max-width:640px) {
+    .scroll-arrived {animation-duration:300ms}
+  }
+}
+
+/* Smoothness on phones: each cover (and its reflection) gets its own GPU layer, so moving the
+   cover flow only re-composites them instead of repainting. */
+@media (hover:none),(max-width:900px) {
+  .album-cover {will-change:transform}
+}
+
+/* "ดูโปรโมชันเต็ม" pill on the glass card */
+.offer-more {
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 14px;
+  border:1px solid rgba(255,255,255,.34);border-radius:999px;background:rgba(255,255,255,.14);
+  color:#fff;font:600 13px/1 'IBM Plex Sans Thai',sans-serif;cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:background-color .2s,border-color .2s;
+}
+.offer-more:hover {background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.6)}
+.offer-more:focus-visible {outline:2px solid #fff;outline-offset:3px}
+
+/* full promotion panel: the same liquid glass, larger */
+.promo-full {
+  width:min(520px,92vw);max-width:none;max-height:min(86svh,780px);padding:0;overflow:auto;overscroll-behavior:contain;
+  border-radius:28px;transform-origin:0 0;color:#fff;
+  border:1px solid rgba(255,255,255,.16);border-top-color:rgba(255,255,255,.5);border-left-color:rgba(255,255,255,.3);
+  background:linear-gradient(155deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 40%,rgba(255,255,255,.07)),rgba(22,20,30,.88);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 22px 30px -22px rgba(255,255,255,.26),0 30px 80px -24px rgba(0,0,0,.75);
+}
+.promo-full::backdrop {background:rgba(6,4,10,.62);backdrop-filter:none}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  /* blur only once the panel has landed (.is-settled): a moving blur is what makes phones stutter */
+  .promo-full.is-settled {
+    background:linear-gradient(155deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 40%,rgba(255,255,255,.07)),rgba(22,20,30,.62);
+    -webkit-backdrop-filter:blur(22px) saturate(170%);
+    backdrop-filter:blur(22px) saturate(170%);
+  }
+}
+.promo-full__body {position:relative;padding:28px 26px 24px}
+.promo-full__close {
+  position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font-size:24px;line-height:1;cursor:pointer;
+}
+.promo-full__model {font-size:14px;color:rgba(255,255,255,.75);padding-right:48px}
+.promo-full h2 {margin:4px 0 18px;font:600 clamp(24px,5vw,32px)/1.25 'IBM Plex Sans Thai',sans-serif;letter-spacing:-.02em;color:#fff}
+.promo-full h3 {margin:18px 0 8px;font:600 12px/1.4 'IBM Plex Sans Thai',sans-serif;letter-spacing:.12em;color:rgba(255,255,255,.6)}
+.promo-full ul {margin:0;padding:0;list-style:none}
+.promo-full__trims li {
+  display:flex;justify-content:space-between;gap:16px;padding:10px 14px;margin-bottom:6px;
+  border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+}
+.promo-full__trims b {font-weight:600;white-space:nowrap}
+.promo-full__perks li {position:relative;padding:6px 0 6px 26px;line-height:1.5;color:rgba(255,255,255,.92)}
+.promo-full__perks li::before {content:"✓";position:absolute;left:2px;top:6px;color:#ffd2ea;font-weight:700}
+.promo-full__note {margin-top:16px;font-size:12px;color:rgba(255,255,255,.55)}
+.promo-full__actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.promo-full__actions .button {flex:1 1 180px}
+.promo-full .button-glass {background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32)}
+.promo-full [hidden] {display:none}
+@media (max-width:600px) {
+  .offer-more {margin-top:6px;padding:6px 12px;font-size:12px}
+  .promo-full__body {padding:24px 18px 18px}
+}
